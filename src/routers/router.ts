@@ -1,7 +1,9 @@
 import { Router, type Response } from 'express';
 
 class MainRouter {
-  constructor(public router: Router = Router()) {
+  public router: Router = Router();
+
+  constructor() {
     this.initializeRoutes();
   }
 

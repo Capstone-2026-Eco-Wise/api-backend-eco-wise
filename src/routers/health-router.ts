@@ -2,7 +2,9 @@ import { Router, type Response } from 'express';
 import { env } from '../utils/env.ts';
 
 class HealthRouter {
-  constructor(public router: Router = Router()) {
+  public router: Router = Router();
+
+  constructor() {
     this.initializeRoutes();
   }
 

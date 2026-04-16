@@ -10,6 +10,7 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "es2020",
+    "moduleResolution": "bundler",
     "target": "es2020",
     "esModuleInterop": true,
     // "types": [],

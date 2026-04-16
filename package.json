@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "nodemon --exec tsx ./src/server.ts",
     "build": "tsc",
-    "start": "node ./src/server.ts"
+    "start": "node ./src/server.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -18,11 +20,16 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
     "dotenv": "^17.4.2",
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0",
+    "jiti": "^2.6.1",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2"
   }
 }

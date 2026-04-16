@@ -5,7 +5,9 @@ import router from './routers/router.ts';
 import { env } from './utils/env.ts';
 
 class App {
-  constructor(public app: Application = express()) {
+  public app: Application = express();
+
+  constructor() {
     this.initializeMiddlewares();
     this.initializeRoutes();
   }
