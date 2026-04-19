@@ -1,21 +1,25 @@
 import cors from 'cors';
 import express, { type Application, type Response } from 'express';
-import healthRouter from './routers/health-router.ts';
-import router from './routers/router.ts';
+import {
+  endpointNotFoundHandler,
+  errorMiddleware,
+} from './middlewares/error-middleware.ts';
+import healthRouter from './routes/health-route.ts';
+import router from './routes/route.ts';
 import { env } from './utils/env.ts';
 
 class App {
   public app: Application = express();
 
   constructor() {
-    this.initializeMiddlewares();
+    this.initializePreRouteMiddlewares();
     this.initializeRoutes();
+    this.initializePostRouteMiddlewares();
   }
 
-  private initializeMiddlewares(): void {
+  private initializePreRouteMiddlewares(): void {
     this.app.use(cors({ origin: env.ORIGIN_ALLOWED }));
     this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
   }
 
   private initializeRoutes(): void {
@@ -24,6 +28,11 @@ class App {
     });
     this.app.use('/health', healthRouter);
     this.app.use('/api/eco-wise', router);
+  }
+
+  private initializePostRouteMiddlewares(): void {
+    this.app.use(endpointNotFoundHandler);
+    this.app.use(errorMiddleware);
   }
 }
 
