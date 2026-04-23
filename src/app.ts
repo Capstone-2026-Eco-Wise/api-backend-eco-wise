@@ -20,7 +20,12 @@ class App {
 
   private initializePreRouteMiddlewares(): void {
     this.app.use(helmet());
-    this.app.use(cors({ origin: env.ORIGIN_ALLOWED }));
+    this.app.use(
+      cors({
+        origin: env.ORIGIN_ALLOWED,
+        credentials: true,
+      }),
+    );
     this.app.use(express.json());
   }
 
