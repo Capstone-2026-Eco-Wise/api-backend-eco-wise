@@ -1,5 +1,5 @@
-import { Router, type Response } from 'express';
-import userRoute from './user-route.ts';
+import { Router } from 'express';
+import userRoute from '../modules/users/user-route.ts';
 
 class MainRouter {
   public router: Router = Router();
@@ -9,9 +9,6 @@ class MainRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', (_, res: Response) => {
-      res.send('Eco-Wise API is running!');
-    });
     this.router.use('/users', userRoute);
   }
 }

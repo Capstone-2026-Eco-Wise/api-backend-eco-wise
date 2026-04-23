@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import UserService from '../services/user-service.ts';
-import ResponseServer from '../utils/response-server.ts';
+import ResponseServer from '../../utils/response-server.ts';
+import UserService from './user-service.ts';
 
 export default class UserController {
   private userService: UserService;

@@ -1,13 +1,13 @@
 import cors from 'cors';
-import express, { type Application } from 'express';
+import express, { type Application, type Response } from 'express';
 import helmet from 'helmet';
 import {
   endpointNotFoundHandler,
   errorMiddleware,
 } from './middlewares/error-middleware.ts';
-import healthRouter from './routes/health-route.ts';
 import router from './routes/route.ts';
 import { env } from './utils/env.ts';
+import { formatUptime } from './utils/formated-time.ts';
 
 class App {
   public app: Application = express();
@@ -30,13 +30,26 @@ class App {
   }
 
   private initializeRoutes(): void {
-    this.app.use('/health', healthRouter);
+    this.healthRoute();
     this.app.use('/api', router);
   }
 
   private initializePostRouteMiddlewares(): void {
     this.app.use(endpointNotFoundHandler);
     this.app.use(errorMiddleware);
+  }
+
+  private healthRoute() {
+    this.app.get('/', (_, res: Response) => {
+      res.status(200).json({
+        status: 'OK',
+        message: 'Eco-Wise API is running!',
+        uptime: formatUptime(process.uptime()),
+        memoryUsage: process.memoryUsage(),
+        environment: env.NODE_ENV,
+        timeStamp: new Date().toISOString(),
+      });
+    });
   }
 }
 

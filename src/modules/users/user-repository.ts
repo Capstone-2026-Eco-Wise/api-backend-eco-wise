@@ -1,7 +1,7 @@
-import type { Prisma } from '../../generated/prisma/client.ts';
-import { prisma } from '../infrastructure/database/prisma-client.ts';
-import { supabase } from '../infrastructure/database/supabase.ts';
-import type { UserSignInType, UserSignUpType } from '../types/user-type.ts';
+import type { Prisma } from '../../../generated/prisma/client.ts';
+import { prisma } from '../../infrastructure/database/prisma-client.ts';
+import { supabase } from '../../infrastructure/database/supabase.ts';
+import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
 
 export default class UserRepository {
   async signUpUser({ full_name, email, password, username }: UserSignUpType) {

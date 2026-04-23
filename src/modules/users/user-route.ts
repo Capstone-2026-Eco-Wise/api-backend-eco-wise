@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import UserController from '../controllers/user-controller.ts';
-import { authMiddleware } from '../middlewares/auth-middleware.ts';
-import { authLimiter } from '../middlewares/rate-limit-middleware.ts';
-import { validateSchema } from '../middlewares/validation-middleware.ts';
+import { authMiddleware } from '../../middlewares/auth-middleware.ts';
+import { authLimiter } from '../../middlewares/rate-limit-middleware.ts';
+import { validateSchema } from '../../middlewares/validation-middleware.ts';
+import UserController from './user-controller.ts';
 import {
   userSignInValidation,
   userSignUpValidation,
-} from '../validations/user-validation.ts';
+} from './user-validation.ts';
 
 class UserRoute {
   private userRoute = Router();
