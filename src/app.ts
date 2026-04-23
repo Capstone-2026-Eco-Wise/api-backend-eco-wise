@@ -1,5 +1,6 @@
 import cors from 'cors';
-import express, { type Application, type Response } from 'express';
+import express, { type Application } from 'express';
+import helmet from 'helmet';
 import {
   endpointNotFoundHandler,
   errorMiddleware,
@@ -18,16 +19,14 @@ class App {
   }
 
   private initializePreRouteMiddlewares(): void {
+    this.app.use(helmet());
     this.app.use(cors({ origin: env.ORIGIN_ALLOWED }));
     this.app.use(express.json());
   }
 
   private initializeRoutes(): void {
-    this.app.get('/', (_, res: Response) => {
-      res.send('Welcome to Eco-Wise API');
-    });
     this.app.use('/health', healthRouter);
-    this.app.use('/api/eco-wise', router);
+    this.app.use('/api', router);
   }
 
   private initializePostRouteMiddlewares(): void {

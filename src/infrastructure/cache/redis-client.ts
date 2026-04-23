@@ -9,10 +9,10 @@ export default class RedisClient {
   constructor() {
     this.client = createClient({
       socket: {
-        host: env.REDIS_HOST,
-        // port: Number(env.REDIS_PORT) || 6379,
+        host: env.REDIS_HOST || '127.0.0.1',
+        port: Number(process.env.REDIS_PORT) || 6379,
       },
-      database: Number(env.REDIS_DATABASE),
+      database: Number(env.REDIS_DATABASE) || 0,
     });
 
     this.client.on('error', (error) => {

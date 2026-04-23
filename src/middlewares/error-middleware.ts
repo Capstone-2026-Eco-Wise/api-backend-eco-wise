@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../errors/app-error.ts';
 import { ErrorFactory } from '../errors/error-factory.ts';
+import { logger } from '../infrastructure/logger/logger.ts';
 import ResponseServer from '../utils/response-server.ts';
 
 export const endpointNotFoundHandler = (
@@ -28,7 +29,9 @@ export const errorMiddleware = (
   }
 
   if (statusCode === 500) {
-    console.error(`[Error]: ${err.stack || err.message}`);
+    logger.error(`${err.stack || err.message}`);
+  } else {
+    logger.warn(`Client Error [${statusCode}]: ${message}`);
   }
 
   return ResponseServer.error(res, statusCode, message, null);

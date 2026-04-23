@@ -60,6 +60,7 @@ temp/
 # PRISMA
 # ======================
 prisma/migrations/
+generated/prisma
 
 # ======================
 # DOCKER

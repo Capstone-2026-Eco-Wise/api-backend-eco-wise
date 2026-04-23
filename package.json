@@ -10,16 +10,28 @@
     "dev": "nodemon --exec tsx ./src/server.ts",
     "build": "tsc",
     "start": "node ./src/server.ts",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:reset": "prisma migrate reset",
+    "db:studio": "prisma db studio",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
+    "@supabase/supabase-js": "^2.104.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
     "form-data": "^4.0.5",
+    "helmet": "^8.1.0",
     "multer": "^2.1.1",
     "nodemon": "^3.1.14",
+    "pg": "^8.20.0",
     "redis": "^5.12.1",
+    "winston": "^3.19.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

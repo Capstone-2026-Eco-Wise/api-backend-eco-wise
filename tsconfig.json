@@ -4,7 +4,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     // File Layout
-    "rootDir": "./src",
+    // "rootDir": "./src",
     "outDir": "./dist",
 
     // Environment Settings
@@ -22,6 +22,7 @@
     "emitDeclarationOnly": false, // for build mode
     "rewriteRelativeImportExtensions": true, // no extension in import
     // and npm install -D @types/node
+    "typeRoots": ["./node_modules/@types", "./src/types"],
 
     // Other Outputs
     "sourceMap": true,

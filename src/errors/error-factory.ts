@@ -10,7 +10,18 @@ export class ErrorFactory {
     statusCode = 400,
     name = 'Client Error',
   ) {
-    return this.build(message, statusCode, name);
+    try {
+      const parsed = JSON.parse(message);
+
+      if (Array.isArray(parsed)) {
+        const cleanMessage = parsed
+          .map((err) => `${err.path.join('.')}: ${err.message}`)
+          .join(', ');
+        return this.build(cleanMessage, statusCode, 'Validation Error');
+      }
+    } catch {
+      return this.build(message, statusCode, name);
+    }
   }
 
   public static notFoundError(message: string, name = 'Resource Not Found') {
@@ -19,10 +30,9 @@ export class ErrorFactory {
 
   public static authenticationError(
     message: string,
-    statusCode = 401,
     name = 'Authentication Error',
   ) {
-    return this.build(message, statusCode, name);
+    return this.build(message, 401, name);
   }
 
   public static authorizationError(
