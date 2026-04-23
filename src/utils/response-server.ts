@@ -47,8 +47,9 @@ class ResponseServer {
     code: number,
     message: string,
     data: unknown,
+    fromCacher: boolean = false,
   ) {
-    return this.templateResponse(res, code, message, data);
+    return this.templateResponse(res, code, message, data, fromCacher);
   }
 
   public static error(

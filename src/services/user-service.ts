@@ -1,12 +1,15 @@
 import { ErrorFactory } from '../errors/error-factory.ts';
+import CacheService from '../infrastructure/cache/cache-service.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
 import UserRepository from '../repositories/user-repository.ts';
 import type { UserSignInType, UserSignUpType } from '../types/user-type.ts';
 export default class UserService {
   private userRepository: UserRepository;
+  private cache: CacheService;
 
   constructor() {
     this.userRepository = new UserRepository();
+    this.cache = new CacheService();
     this.registerUser = this.registerUser.bind(this);
     this.loginUser = this.loginUser.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
@@ -62,6 +65,14 @@ export default class UserService {
   async sessionUser(id: string) {
     logger.info(`[User Service]: Getting session user for ${id}`);
 
+    const cacheSession = await this.cache.get(`user-session:${id}`);
+
+    if (cacheSession) {
+      logger.info(`[User Service]: User session found for ${id}`);
+
+      return { user: cacheSession, fromCache: true };
+    }
+
     const user = await this.userRepository.getSessionUser(id);
 
     if (!user) {
@@ -72,7 +83,9 @@ export default class UserService {
 
     logger.info(`[User Service]: User session found for ${id}`);
 
-    return user;
+    await this.cache.set(`user-session:${id}`, user, 86400);
+
+    return { user, fromCache: false };
   }
 
   async logoutUser() {

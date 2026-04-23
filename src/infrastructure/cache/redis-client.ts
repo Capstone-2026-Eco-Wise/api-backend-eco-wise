@@ -1,5 +1,6 @@
 import { createClient, type RedisClientType } from 'redis';
 import { env } from '../../utils/env.ts';
+import { logger } from '../logger/logger.ts';
 
 export default class RedisClient {
   private static instance: RedisClient;
@@ -9,22 +10,22 @@ export default class RedisClient {
   constructor() {
     this.client = createClient({
       socket: {
-        host: env.REDIS_HOST || '127.0.0.1',
-        port: Number(process.env.REDIS_PORT) || 6379,
+        host: env.REDIS_HOST,
+        port: Number(env.REDIS_PORT),
       },
-      database: Number(env.REDIS_DATABASE) || 0,
+      database: Number(env.REDIS_DATABASE),
     });
 
     this.client.on('error', (error) => {
-      console.error('[redis] client error:', error.message);
+      logger.error(`[redis] client error: ${error.message}`);
     });
 
     this.client.on('reconnecting', () => {
-      console.warn('[redis] reconnecting...');
+      logger.warn(`[redis] reconnecting...`);
     });
 
     this.client.on('ready', () => {
-      console.log('[redis] ready');
+      logger.info(`[redis] ready`);
     });
   }
 
@@ -45,7 +46,7 @@ export default class RedisClient {
 
   async disconnect() {
     if (this.isConnected) {
-      await this.client.disconnect();
+      await this.client.quit();
       this.isConnected = false;
     }
   }

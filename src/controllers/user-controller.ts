@@ -52,13 +52,14 @@ export default class UserController {
       return ResponseServer.error(res, 401, 'Session not found');
     }
 
-    const user = await this.userService.sessionUser(req.user.id);
+    const { user, fromCache } = await this.userService.sessionUser(req.user.id);
 
     return ResponseServer.success(
       res,
       200,
-      'User successfully retrieved',
+      `User successfully retrieved ${fromCache ? '(from cache)' : ''}`,
       user,
+      fromCache,
     );
   }
 
