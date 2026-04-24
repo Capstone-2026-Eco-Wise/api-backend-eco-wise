@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { supabase } from '../infrastructure/database/supabase.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
 import ResponseServer from '../utils/response-server.ts';
+import { prisma } from '../infrastructure/database/prisma-client.ts';
 
 export const authMiddleware = async (
   req: Request,
@@ -25,7 +26,19 @@ export const authMiddleware = async (
       return ResponseServer.error(res, 401, 'Unauthenticated, please login');
     }
 
-    req.user = data.user;
+    const dbUser = await prisma.users.findUnique({
+      where: {
+        id: data.user.id,
+      },
+    });
+
+    if (!dbUser) {
+      logger.warn(`[Auth Middleware]: User not found in database`);
+      return ResponseServer.error(res, 404, 'User not found in database');
+    }
+
+    req.user = dbUser;
+    req.supabase = data.user;
 
     next();
   } catch (error) {

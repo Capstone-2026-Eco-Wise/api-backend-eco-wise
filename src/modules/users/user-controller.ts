@@ -52,7 +52,9 @@ export default class UserController {
       return ResponseServer.error(res, 401, 'Session not found');
     }
 
-    const { user, fromCache } = await this.userService.sessionUser(req.user.id);
+    const { user, fromCache } = await this.userService.sessionUser(
+      req.user?.id as string,
+    );
 
     return ResponseServer.success(
       res,

@@ -7,6 +7,18 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ROLE_USER {
+  admin
+  user
+}
+
+enum LABEL_CLASSIFICATION {
+  organik
+  non_organik
+  b3
+  bukan_sampah
+}
+
 model Users {
   id         String    @id @default(uuid()) @db.Uuid
   fullName   String    @map("full_name") @db.VarChar(100)
@@ -20,7 +32,14 @@ model Users {
   @@map("users")
 }
 
-enum ROLE_USER {
-  admin
-  user
+model ecoTasks {
+  id          String               @id @default(uuid()) @db.Uuid
+  title       String               @db.VarChar(100)
+  description String?              @db.Text
+  targetValue LABEL_CLASSIFICATION @default(organik)
+  pointReward Int                  @default(1) @map("point_reward")
+  created_at  DateTime             @default(now())
+  updated_at  DateTime             @default(now()) @updatedAt
+
+  @@map("eco_tasks")
 }

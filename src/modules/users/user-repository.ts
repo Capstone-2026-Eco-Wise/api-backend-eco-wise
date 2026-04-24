@@ -1,4 +1,3 @@
-import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
 import { supabase } from '../../infrastructure/database/supabase.ts';
 import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
@@ -24,12 +23,11 @@ export default class UserRepository {
     });
   }
 
-  async getSessionUser(id: string, option?: Prisma.UsersFindUniqueArgs) {
-    return await prisma.users.findUnique({
+  async getSessionUser(id: string) {
+    return await prisma.users.findFirst({
       where: {
         id,
       },
-      ...option,
     });
   }
 
