@@ -1,4 +1,6 @@
+import type { Users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
+import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
@@ -11,18 +13,23 @@ export default class UserService {
   constructor() {
     this.userRepository = new UserRepository();
     this.cache = new CacheService();
-    this.registerUser = this.registerUser.bind(this);
-    this.loginUser = this.loginUser.bind(this);
-    this.logoutUser = this.logoutUser.bind(this);
   }
 
-  async registerUser(payloadUserSignUp: UserSignUpType) {
-    logger.info(
-      `[User Service]: Signing up user with email: ${payloadUserSignUp.email}`,
-    );
+  registerUser = async ({
+    full_name,
+    email,
+    password,
+    username,
+  }: UserSignUpType) => {
+    logger.info(`[User Service]: Signing up user with email: ${email}`);
 
     const { data: userSignUp, error: errorUserSignUp } =
-      await this.userRepository.signUpUser(payloadUserSignUp);
+      await this.userRepository.signUpUser({
+        email,
+        full_name,
+        password,
+        username,
+      });
 
     if (errorUserSignUp) {
       logger.error(`[User Service]: ${errorUserSignUp.message}`);
@@ -33,19 +40,16 @@ export default class UserService {
       );
     }
 
-    logger.info(
-      `[User Service]: User signed up successfully for ${payloadUserSignUp.email}`,
-    );
-    return userSignUp;
-  }
+    logger.info(`[User Service]: User signed up successfully for ${email}`);
 
-  async loginUser(payloadUserSignIn: UserSignInType) {
-    logger.info(
-      `[User Service]: Logging in user with email: ${payloadUserSignIn.email}`,
-    );
+    return userSignUp;
+  };
+
+  loginUser = async ({ email, password }: UserSignInType) => {
+    logger.info(`[User Service]: Logging in user with email: ${email}`);
 
     const { data: userSignIn, error: errorUserSignIn } =
-      await this.userRepository.signInUser(payloadUserSignIn);
+      await this.userRepository.signInUser({ email, password });
 
     if (errorUserSignIn) {
       logger.error(`[User Service]: ${errorUserSignIn.message}`);
@@ -56,41 +60,31 @@ export default class UserService {
       );
     }
 
-    logger.info(
-      `[User Service]: User logged in successfully for ${payloadUserSignIn.email}`,
-    );
+    logger.info(`[User Service]: User logged in successfully for ${email}`);
 
     return userSignIn;
-  }
+  };
 
-  async sessionUser(id: string) {
-    logger.info(`[User Service]: Getting session user for ${id}`);
+  sessionUser = async (user: Users) => {
+    logger.info(`[User Service]: Getting session user for ${user.id}`);
 
-    const cacheSession = await this.cache.get(`user-session:${id}`);
+    const cacheSession = await this.cache.get(cacheKey.userSession(user.id));
 
     if (cacheSession) {
-      logger.info(`[User Service]: User session found for ${id}`);
+      logger.info(`[User Service]: Get session from cache for ${user.id}`);
 
       return { user: cacheSession, fromCache: true };
     }
 
-    const user = await this.userRepository.getSessionUser(id);
+    await this.cache.set(cacheKey.userSession(user.id), user);
 
-    if (!user) {
-      logger.error(`[User Service]: No session found for ${id}`);
-
-      throw ErrorFactory.authenticationError('Please login');
-    }
-
-    logger.info(`[User Service]: User session found for ${id}`);
-
-    await this.cache.set(`user-session:${id}`, user, 86400);
+    logger.info(`[User Service]: Get user for ${user.id}`);
 
     return { user, fromCache: false };
-  }
+  };
 
-  async logoutUser() {
-    logger.info(`[User Service]: Logging out user`);
+  logoutUser = async (userId: string) => {
+    logger.info(`[User Service]: User is logging out`);
 
     const { error: errorUserLogOut } = await this.userRepository.userLogOut();
 
@@ -103,6 +97,10 @@ export default class UserService {
       );
     }
 
+    await this.cache.del(cacheKey.userSession(userId));
+
+    logger.info(`[User Service]: User has been logged out`);
+
     return 'User has been logged out';
-  }
+  };
 }

@@ -7,21 +7,10 @@ export default class UserController {
 
   constructor() {
     this.userService = new UserService();
-    this.signUp = this.signUp.bind(this);
-    this.signIn = this.signIn.bind(this);
-    this.session = this.session.bind(this);
-    this.logOut = this.logOut.bind(this);
   }
 
-  async signUp(req: Request, res: Response) {
-    const { full_name, email, password, username } = req.body;
-
-    const { session } = await this.userService.registerUser({
-      full_name,
-      email,
-      password,
-      username,
-    });
+  signUp = async (req: Request, res: Response) => {
+    const { session } = await this.userService.registerUser(req.body);
 
     return ResponseServer.success(
       res,
@@ -29,9 +18,9 @@ export default class UserController {
       'User successfully registered',
       session,
     );
-  }
+  };
 
-  async signIn(req: Request, res: Response) {
+  signIn = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const { session } = await this.userService.loginUser({
@@ -45,29 +34,29 @@ export default class UserController {
       'User successfully signed in',
       session,
     );
-  }
+  };
 
-  async session(req: Request, res: Response) {
+  session = async (req: Request, res: Response) => {
     if (!req.user) {
       return ResponseServer.error(res, 401, 'Session not found');
     }
 
-    const { user, fromCache } = await this.userService.sessionUser(
-      req.user?.id as string,
-    );
+    const { user, fromCache } = await this.userService.sessionUser(req.user);
 
     return ResponseServer.success(
       res,
       200,
-      `User successfully retrieved ${fromCache ? '(from cache)' : ''}`,
+      `User successfully retrieved${fromCache ? ' from cache' : ''}`,
       user,
       fromCache,
     );
-  }
+  };
 
-  async logOut(req: Request, res: Response) {
-    const user = await this.userService.logoutUser();
+  logOut = async (req: Request, res: Response) => {
+    const id = req.user?.id;
+
+    const user = await this.userService.logoutUser(id as string);
 
     return ResponseServer.success(res, 200, user, null);
-  }
+  };
 }

@@ -32,14 +32,16 @@ model Users {
   @@map("users")
 }
 
-model ecoTasks {
-  id          String               @id @default(uuid()) @db.Uuid
-  title       String               @db.VarChar(100)
-  description String?              @db.Text
-  targetValue LABEL_CLASSIFICATION @default(organik)
-  pointReward Int                  @default(1) @map("point_reward")
-  created_at  DateTime             @default(now())
-  updated_at  DateTime             @default(now()) @updatedAt
+model wasteCategories {
+  id           String   @id @default(uuid()) @db.Uuid
+  categoryCode String   @unique @map("category_code") @db.VarChar()
+  categoryName String   @map("category_name") @db.VarChar()
+  description  String?  @db.Text
+  handlingTips String?  @map("handling_tips") @db.Text
+  colorHex     String?  @map("color_hex") @db.VarChar()
+  pointsReward Int      @map("points_reward")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@map("eco_tasks")
+  @@map("waste_categories")
 }

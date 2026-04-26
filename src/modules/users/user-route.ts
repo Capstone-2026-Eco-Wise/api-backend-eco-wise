@@ -1,5 +1,4 @@
-import { Router, type Request, type Response } from 'express';
-import { accessControlMiddleware } from '../../middlewares/access-control-middleware.ts';
+import { Router } from 'express';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import { authLimiter } from '../../middlewares/rate-limit-middleware.ts';
 import { validateSchema } from '../../middlewares/validation-middleware.ts';
@@ -8,20 +7,20 @@ import {
   userSignInValidation,
   userSignUpValidation,
 } from './user-validation.ts';
-import { ROLE_USER } from '../../../generated/prisma/enums.ts';
 
 class UserRoute {
-  private userRoute = Router();
-  private userController = new UserController();
+  private userRoute: Router;
+  private userController: UserController;
 
   constructor() {
+    this.userRoute = Router();
+    this.userController = new UserController();
     this.routes();
   }
 
-  routes() {
+  routes = () => {
     this.userRoute.post(
       '/sign-up',
-      authLimiter,
       validateSchema(userSignUpValidation),
       this.userController.signUp,
     );
@@ -32,20 +31,14 @@ class UserRoute {
       this.userController.signIn,
     );
     this.userRoute.get('/me', authMiddleware, this.userController.session);
-    this.userRoute.post('/sign-out', this.userController.logOut);
-    this.userRoute.get(
-      '/role',
+    this.userRoute.post(
+      '/sign-out',
       authMiddleware,
-      accessControlMiddleware([ROLE_USER.user]),
-      (req: Request, res: Response) => {
-        const user = req.user;
-
-        return res.send(user);
-      },
+      this.userController.logOut,
     );
 
     return this.userRoute;
-  }
+  };
 }
 
 export default new UserRoute().routes();

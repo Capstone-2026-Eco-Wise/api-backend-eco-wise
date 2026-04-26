@@ -10,19 +10,5 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: eco_wise_rabbitmq
-    ports:
-      - '5672:5672' # Port default untuk koneksi antrean AMQP
-      - '15672:15672' # Port default untuk dashboard UI Management
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    restart: unless-stopped
-
 volumes:
   redis_data:
-  rabbitmq_data:

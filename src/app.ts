@@ -18,7 +18,7 @@ class App {
     this.initializePostRouteMiddlewares();
   }
 
-  private initializePreRouteMiddlewares(): void {
+  private initializePreRouteMiddlewares = (): void => {
     this.app.use(helmet());
     this.app.use(
       cors({
@@ -27,19 +27,19 @@ class App {
       }),
     );
     this.app.use(express.json());
-  }
+  };
 
-  private initializeRoutes(): void {
+  private initializeRoutes = (): void => {
     this.healthRoute();
     this.app.use('/api', router);
-  }
+  };
 
-  private initializePostRouteMiddlewares(): void {
+  private initializePostRouteMiddlewares = (): void => {
     this.app.use(endpointNotFoundHandler);
     this.app.use(errorMiddleware);
-  }
+  };
 
-  private healthRoute() {
+  private healthRoute = (): void => {
     this.app.get('/', (_, res: Response) => {
       res.status(200).json({
         status: 'OK',

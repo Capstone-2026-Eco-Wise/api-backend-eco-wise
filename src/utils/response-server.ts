@@ -1,23 +1,23 @@
 import type { Response } from 'express';
 
 class ResponseServer {
-  private static templateResponse(
+  private static templateResponse = (
     res: Response,
     code: number,
 
     message: string,
     data: unknown,
     fromCacher: boolean = false,
-  ) {
+  ) => {
     res.set('X-Data-Source', fromCacher ? 'cache' : 'database');
 
     return res.status(code).json({
       message,
       data,
     });
-  }
+  };
 
-  private static paginationTemplate(
+  private static paginationTemplate = (
     res: Response,
     code: number,
     message: string,
@@ -26,7 +26,7 @@ class ResponseServer {
     limit: number,
     fromCacher: boolean = false,
     page: number = 1,
-  ) {
+  ) => {
     const totalPage = Math.ceil(totalData / limit);
     res.set('X-Data-Source', fromCacher ? 'cache' : 'database');
 
@@ -40,28 +40,28 @@ class ResponseServer {
         totalPage,
       },
     });
-  }
+  };
 
-  public static success(
+  public static success = (
     res: Response,
     code: number,
     message: string,
     data: unknown,
     fromCacher: boolean = false,
-  ) {
+  ) => {
     return this.templateResponse(res, code, message, data, fromCacher);
-  }
+  };
 
-  public static error(
+  public static error = (
     res: Response,
     code: number,
     message: string,
     data = null,
-  ) {
+  ) => {
     return this.templateResponse(res, code, message, data);
-  }
+  };
 
-  public static paginationSuccess(
+  public static paginationSuccess = (
     res: Response,
     message: string,
     data: unknown,
@@ -69,7 +69,7 @@ class ResponseServer {
     limit: number,
     page: number = 1,
     fromCacher: boolean = false,
-  ) {
+  ) => {
     return this.paginationTemplate(
       res,
       200,
@@ -80,7 +80,7 @@ class ResponseServer {
       fromCacher,
       page,
     );
-  }
+  };
 }
 
 export default ResponseServer;

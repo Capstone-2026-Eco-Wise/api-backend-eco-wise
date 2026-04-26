@@ -37,14 +37,14 @@ export default class RedisClient {
     return RedisClient.instance;
   }
 
-  async connect() {
+  connect = async () => {
     if (!this.isConnected) {
       await this.client.connect();
       this.isConnected = true;
     }
   }
 
-  async disconnect() {
+  disconnect = async () => {
     if (this.isConnected) {
       await this.client.quit();
       this.isConnected = false;

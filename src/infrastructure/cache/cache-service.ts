@@ -10,7 +10,7 @@ export default class CacheService {
     this.redisClient = redisInstance.getClient();
   }
 
-  async get(key: string) {
+  get = async (key: string) => {
     logger.info(`[cache] get key: ${key}`);
 
     const data = await this.redisClient.get(key);
@@ -18,13 +18,13 @@ export default class CacheService {
     return data ? JSON.parse(data) : null;
   }
 
-  async set(key: string, value: unknown, ttl: number = 3600) {
+  set = async (key: string, value: unknown, ttl: number = 3600) => {
     logger.info(`[cache] set key: ${key}, ttl: ${ttl}`);
 
     return await this.redisClient.set(key, JSON.stringify(value), { EX: ttl });
   }
 
-  async del(key: string) {
+  del = async (key: string) => {
     logger.info(`[cache] del key: ${key}`);
 
     return await this.redisClient.del(key);

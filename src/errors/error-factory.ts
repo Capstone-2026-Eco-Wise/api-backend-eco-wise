@@ -5,11 +5,11 @@ export class ErrorFactory {
     return new AppError(message, statusCode, name);
   }
 
-  public static clientError(
+  public static clientError = (
     message: string,
     statusCode = 400,
     name = 'Client Error',
-  ) {
+  ) => {
     try {
       const parsed = JSON.parse(message);
 
@@ -22,32 +22,35 @@ export class ErrorFactory {
     } catch {
       return this.build(message, statusCode, name);
     }
-  }
+  };
 
-  public static notFoundError(message: string, name = 'Resource Not Found') {
+  public static notFoundError = (
+    message: string,
+    name = 'Resource Not Found',
+  ) => {
     return this.build(message, 404, name);
-  }
+  };
 
-  public static authenticationError(
+  public static authenticationError = (
     message: string,
     name = 'Authentication Error',
-  ) {
+  ) => {
     return this.build(message, 401, name);
-  }
+  };
 
-  public static authorizationError(
+  public static authorizationError = (
     message: string,
     statusCode = 403,
     name = 'Authorization Error',
-  ) {
+  ) => {
     return this.build(message, statusCode, name);
-  }
+  };
 
-  public static serverError(
+  public static serverError = (
     message: string,
     statusCode = 500,
     name = 'Server Error',
-  ) {
+  ) => {
     return this.build(message, statusCode, name);
-  }
+  };
 }

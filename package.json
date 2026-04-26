@@ -14,7 +14,7 @@
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:reset": "prisma migrate reset",
-    "db:studio": "prisma db studio",
+    "db:studio": "prisma studio",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

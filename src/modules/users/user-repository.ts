@@ -3,7 +3,12 @@ import { supabase } from '../../infrastructure/database/supabase.ts';
 import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
 
 export default class UserRepository {
-  async signUpUser({ full_name, email, password, username }: UserSignUpType) {
+  signUpUser = async ({
+    full_name,
+    email,
+    password,
+    username,
+  }: UserSignUpType) => {
     return await supabase.auth.signUp({
       email,
       password,
@@ -14,28 +19,20 @@ export default class UserRepository {
         },
       },
     });
-  }
+  };
 
-  async signInUser({ email, password }: UserSignInType) {
+  signInUser = async ({ email, password }: UserSignInType) => {
     return await supabase.auth.signInWithPassword({
       email,
       password,
     });
-  }
+  };
 
-  async getSessionUser(id: string) {
-    return await prisma.users.findFirst({
-      where: {
-        id,
-      },
-    });
-  }
-
-  async userLogOut() {
+  userLogOut = async () => {
     return await supabase.auth.signOut();
-  }
+  };
 
-  async updateAvatarUser(id: string, avatarUrl: string) {
+  updateAvatarUser = async (id: string, avatarUrl: string) => {
     return await prisma.users.update({
       where: {
         id,
@@ -44,5 +41,5 @@ export default class UserRepository {
         avatar_url: avatarUrl,
       },
     });
-  }
+  };
 }

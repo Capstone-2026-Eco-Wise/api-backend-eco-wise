@@ -96,3 +96,8 @@ Thumbs.db
 *.tgz
 *.zip
 *.rar
+
+# ======================
+# DOCUMENTATION
+# ======================
+audit.md
