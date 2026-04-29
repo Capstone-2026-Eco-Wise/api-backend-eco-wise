@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express';
 import ResponseServer from '../../utils/response-server.ts';
-import UserService from './user-service.ts';
+import type UserService from './user-service.ts';
 
 export default class UserController {
   private userService: UserService;
 
-  constructor() {
-    this.userService = new UserService();
+  constructor(userService: UserService) {
+    this.userService = userService;
   }
 
   signUp = async (req: Request, res: Response) => {

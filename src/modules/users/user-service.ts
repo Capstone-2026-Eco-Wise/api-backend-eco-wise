@@ -1,26 +1,25 @@
 import type { Users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
-import CacheService from '../../infrastructure/cache/cache-service.ts';
+import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
-import EcoPointsService from '../eco-points/eco-points-service.ts';
-import UserRepository from './user-repository.ts';
-
-import EcoPointsRepository from '../eco-points/eco-points-repository.ts';
+import type EcoPointsService from '../eco-points/eco-points-service.ts';
+import type UserRepository from './user-repository.ts';
 
 export default class UserService {
   private userRepository: UserRepository;
   private ecoPointsService: EcoPointsService;
   private cache: CacheService;
 
-  constructor() {
-    this.userRepository = new UserRepository();
-    this.cache = new CacheService();
-    this.ecoPointsService = new EcoPointsService(
-      new EcoPointsRepository(),
-      this.cache,
-    );
+  constructor(
+    userRepository: UserRepository,
+    cache: CacheService,
+    ecoPointsService: EcoPointsService,
+  ) {
+    this.userRepository = userRepository;
+    this.cache = cache;
+    this.ecoPointsService = ecoPointsService;
   }
 
   registerUser = async ({

@@ -1,13 +1,13 @@
-import { Router, type Request, type Response } from 'express';
+import { Router } from 'express';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import { authLimiter } from '../../middlewares/rate-limit-middleware.ts';
 import { validateSchema } from '../../middlewares/validation-middleware.ts';
+import { container } from '../../utils/containser.ts';
 import UserController from './user-controller.ts';
 import {
   userSignInValidation,
   userSignUpValidation,
 } from './user-validation.ts';
-import EcoPointsService from '../eco-points/eco-points-service.ts';
 
 class UserRoute {
   private userRoute: Router;
@@ -15,7 +15,7 @@ class UserRoute {
 
   constructor() {
     this.userRoute = Router();
-    this.userController = new UserController();
+    this.userController = new UserController(container.userService);
     this.routes();
   }
 

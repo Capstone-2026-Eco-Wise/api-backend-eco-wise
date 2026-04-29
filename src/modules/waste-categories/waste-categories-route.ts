@@ -5,6 +5,7 @@ import {
   validateParams,
   validateSchema,
 } from '../../middlewares/validation-middleware.ts';
+import { container } from '../../utils/containser.ts';
 import WasteCategoriesController from './waste-categories-controller.ts';
 import {
   createWasteCategorySchema,
@@ -17,7 +18,9 @@ class WasteCategoriesRoute {
 
   constructor() {
     this.wasteCategoriesRoute = Router();
-    this.wasteCategoriesController = new WasteCategoriesController();
+    this.wasteCategoriesController = new WasteCategoriesController(
+      container.wasteCategoriesService,
+    );
     this.routes();
   }
 

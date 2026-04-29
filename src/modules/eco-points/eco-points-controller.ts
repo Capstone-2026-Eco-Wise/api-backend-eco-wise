@@ -3,7 +3,11 @@ import type EcoPointsService from './eco-points-service.ts';
 import ResponseServer from '../../utils/response-server.ts';
 
 export default class EcoPointsController {
-  constructor(private ecoPointsService: EcoPointsService) {}
+  private ecoPointsService: EcoPointsService;
+
+  constructor(ecoPointsService: EcoPointsService) {
+    this.ecoPointsService = ecoPointsService;
+  }
 
   updatePoint = async (req: Request, res: Response) => {
     const { pointUpdate } = req.body;

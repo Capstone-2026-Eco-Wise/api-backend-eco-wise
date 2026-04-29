@@ -6,10 +6,16 @@ import type { PayloadUpdateTotalPointsType } from '../../types/eco-points-type.t
 import type EcoPointsRepository from './eco-points-repository.ts';
 
 export default class EcoPointsService {
+  private ecoPointsRepository: EcoPointsRepository;
+  private cache: CacheService;
+
   constructor(
-    private ecoPointsRepository: EcoPointsRepository,
-    private cache: CacheService,
-  ) {}
+    ecoPointsRepository: EcoPointsRepository,
+    cache: CacheService,
+  ) {
+    this.ecoPointsRepository = ecoPointsRepository;
+    this.cache = cache;
+  }
 
   private getDiffDaysFromToday = (
     lastActiveDate: Date | null,

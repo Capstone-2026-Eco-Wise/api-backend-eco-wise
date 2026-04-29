@@ -1,20 +1,23 @@
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
-import CacheService from '../../infrastructure/cache/cache-service.ts';
+import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type {
   CreateWasteCategoriesType,
   UpdateWasteCategoriesType,
 } from '../../types/waste-categories-type.ts';
-import WasteCategoriesRepository from './waste-categories-repository.ts';
+import type WasteCategoriesRepository from './waste-categories-repository.ts';
 
 export default class WasteCategoriesService {
   private wasteCategoriesRepository: WasteCategoriesRepository;
   private cache: CacheService;
 
-  constructor() {
-    this.wasteCategoriesRepository = new WasteCategoriesRepository();
-    this.cache = new CacheService();
+  constructor(
+    wasteCategoriesRepository: WasteCategoriesRepository,
+    cache: CacheService,
+  ) {
+    this.wasteCategoriesRepository = wasteCategoriesRepository;
+    this.cache = cache;
   }
 
   createWasteCategory = async ({

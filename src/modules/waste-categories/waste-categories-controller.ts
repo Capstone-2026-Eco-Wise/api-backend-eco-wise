@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express';
 import ResponseServer from '../../utils/response-server.ts';
-import WasteCategoriesService from './waste-categories-service.ts';
+import type WasteCategoriesService from './waste-categories-service.ts';
 
 export default class WasteCategoriesController {
   private wasteCategoriesService: WasteCategoriesService;
 
-  constructor() {
-    this.wasteCategoriesService = new WasteCategoriesService();
+  constructor(wasteCategoriesService: WasteCategoriesService) {
+    this.wasteCategoriesService = wasteCategoriesService;
   }
 
   create = async (req: Request, res: Response) => {
