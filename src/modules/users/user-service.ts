@@ -4,15 +4,23 @@ import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
+import EcoPointsService from '../eco-points/eco-points-service.ts';
 import UserRepository from './user-repository.ts';
+
+import EcoPointsRepository from '../eco-points/eco-points-repository.ts';
 
 export default class UserService {
   private userRepository: UserRepository;
+  private ecoPointsService: EcoPointsService;
   private cache: CacheService;
 
   constructor() {
     this.userRepository = new UserRepository();
     this.cache = new CacheService();
+    this.ecoPointsService = new EcoPointsService(
+      new EcoPointsRepository(),
+      this.cache,
+    );
   }
 
   registerUser = async ({
@@ -31,18 +39,30 @@ export default class UserService {
         username,
       });
 
-    if (errorUserSignUp) {
-      logger.error(`[User Service]: ${errorUserSignUp.message}`);
+    if (errorUserSignUp || !userSignUp) {
+      logger.error(`[User Service]: ${errorUserSignUp?.message}`);
 
       throw ErrorFactory.clientError(
-        errorUserSignUp.message,
-        errorUserSignUp.status,
+        errorUserSignUp?.message as string,
+        errorUserSignUp?.status as number,
       );
+    }
+
+    const ecoPoints = await this.ecoPointsService.createDefaultPointUser(
+      userSignUp.user?.id as string,
+    );
+
+    if (!ecoPoints) {
+      logger.error(
+        `[User Service]: Error creating default point for user ${userSignUp.user?.id}`,
+      );
+
+      throw ErrorFactory.serverError('Error creating default point for user');
     }
 
     logger.info(`[User Service]: User signed up successfully for ${email}`);
 
-    return userSignUp;
+    return { ...userSignUp, ecoPoints };
   };
 
   loginUser = async ({ email, password }: UserSignInType) => {
@@ -76,11 +96,15 @@ export default class UserService {
       return { user: cacheSession, fromCache: true };
     }
 
-    await this.cache.set(cacheKey.userSession(user.id), user);
+    const ecoPoints = await this.ecoPointsService.getEcoPointsByUser(user.id);
+
+    const userSession = { ...user, ecoPoints };
+
+    await this.cache.set(cacheKey.userSession(user.id), userSession);
 
     logger.info(`[User Service]: Get user for ${user.id}`);
 
-    return { user, fromCache: false };
+    return { user: userSession, fromCache: false };
   };
 
   logoutUser = async (userId: string) => {

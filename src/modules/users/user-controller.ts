@@ -10,14 +10,14 @@ export default class UserController {
   }
 
   signUp = async (req: Request, res: Response) => {
-    const { session } = await this.userService.registerUser(req.body);
-
-    return ResponseServer.success(
-      res,
-      201,
-      'User successfully registered',
-      session,
+    const { ecoPoints, session } = await this.userService.registerUser(
+      req.body,
     );
+
+    return ResponseServer.success(res, 201, 'User successfully registered', {
+      session,
+      ecoPoints,
+    });
   };
 
   signIn = async (req: Request, res: Response) => {

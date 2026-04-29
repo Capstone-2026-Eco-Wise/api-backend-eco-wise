@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import { authLimiter } from '../../middlewares/rate-limit-middleware.ts';
 import { validateSchema } from '../../middlewares/validation-middleware.ts';
@@ -7,6 +7,7 @@ import {
   userSignInValidation,
   userSignUpValidation,
 } from './user-validation.ts';
+import EcoPointsService from '../eco-points/eco-points-service.ts';
 
 class UserRoute {
   private userRoute: Router;
