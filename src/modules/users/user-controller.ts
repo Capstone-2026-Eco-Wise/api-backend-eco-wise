@@ -52,11 +52,32 @@ export default class UserController {
     );
   };
 
+  updateAvatar = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Please login first');
+    }
+
+    if (!req.file) {
+      return ResponseServer.error(res, 400, 'Image is required');
+    }
+
+    const user = await this.userService.updateAvatarUser(req.user, req.file);
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Successfuly update avatar user',
+      user,
+    );
+  };
+
   logOut = async (req: Request, res: Response) => {
-    const id = req.user?.id;
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Session not found');
+    }
 
-    const user = await this.userService.logoutUser(id as string);
+    const { message } = await this.userService.logoutUser(req.user.id);
 
-    return ResponseServer.success(res, 200, user, null);
+    return ResponseServer.success(res, 200, message, null);
   };
 }

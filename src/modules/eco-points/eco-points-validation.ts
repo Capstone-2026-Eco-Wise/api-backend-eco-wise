@@ -3,6 +3,6 @@ import z from 'zod';
 export const updatePointSchema = z.object({
   pointUpdate: z
     .number()
-    .int()
-    .positive('Point update must be a positive integer'),
+    .int('Point update must be an integer')
+    .nonnegative('Point update must be a positive integer'),
 });

@@ -9,6 +9,10 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 128m
+    cpus: 0.5
+    command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru
 
 volumes:
   redis_data:

@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
-import { container } from '../../utils/containser.ts';
+import { container } from '../../utils/container.ts';
 import EcoPointsController from './eco-points-controller.ts';
+import { validateSchema } from '../../middlewares/validation-middleware.ts';
+import { updatePointSchema } from './eco-points-validation.ts';
 
 class EcoPontsRoute {
   private ecoPointsRoute: Router;
@@ -26,6 +28,7 @@ class EcoPontsRoute {
     this.ecoPointsRoute.post(
       '/point',
       authMiddleware,
+      validateSchema(updatePointSchema),
       this.ecoPointsController.updatePoint,
     );
 

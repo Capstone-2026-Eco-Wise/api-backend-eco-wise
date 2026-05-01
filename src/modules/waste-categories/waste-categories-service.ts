@@ -11,6 +11,7 @@ import type WasteCategoriesRepository from './waste-categories-repository.ts';
 export default class WasteCategoriesService {
   private wasteCategoriesRepository: WasteCategoriesRepository;
   private cache: CacheService;
+  private serviceName: string;
 
   constructor(
     wasteCategoriesRepository: WasteCategoriesRepository,
@@ -18,6 +19,7 @@ export default class WasteCategoriesService {
   ) {
     this.wasteCategoriesRepository = wasteCategoriesRepository;
     this.cache = cache;
+    this.serviceName = '[Waste Categories Service]';
   }
 
   createWasteCategory = async ({
@@ -28,84 +30,87 @@ export default class WasteCategoriesService {
     handlingTips,
     pointsReward,
   }: CreateWasteCategoriesType) => {
-    logger.info(
-      `[Waste Categories Service]: Creating waste category with category code ${categoryCode}`,
-    );
-
-    const categoryCodeGenerate = categoryCode.trim().toUpperCase();
-
-    const result = await this.wasteCategoriesRepository.create({
-      categoryCode: categoryCodeGenerate,
-      categoryName,
-      colorHex,
-      description,
-      handlingTips,
-      pointsReward,
-    });
-
-    if (!result) {
-      logger.error(
-        `[Waste Categories Service]: Failed to create waste category`,
+    try {
+      logger.info(
+        `${this.serviceName}: Creating waste category with category code ${categoryCode}`,
       );
 
-      throw ErrorFactory.clientError('Failed to create waste category', 400);
+      const categoryCodeGenerate = categoryCode.trim().toUpperCase();
+
+      const resultCreate = await this.wasteCategoriesRepository.create({
+        categoryCode: categoryCodeGenerate,
+        categoryName,
+        colorHex,
+        description,
+        handlingTips,
+        pointsReward,
+      });
+
+      if (!resultCreate) {
+        throw ErrorFactory.clientError('Failed to create waste category', 400);
+      }
+
+      await this.cache.del(cacheKey.wasteCategories());
+
+      logger.info(`${this.serviceName}: End create waste category`);
+
+      return resultCreate;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
-
-    await this.cache.del(cacheKey.wasteCategories());
-
-    logger.info('[Waste Categories Service]: End create waste category');
-
-    return result;
   };
 
   getAllWasteCategories = async () => {
-    logger.info(`[Waste Categories Service]: Getting all waste categories`);
+    try {
+      logger.info(`${this.serviceName}: Getting all waste categories`);
 
-    const wasteCategoriesCache = await this.cache.get(
-      cacheKey.wasteCategories(),
-    );
+      const wasteCategoriesCached = await this.cache.get(
+        cacheKey.wasteCategories(),
+      );
 
-    if (wasteCategoriesCache) {
-      return { wasteCategories: wasteCategoriesCache, fromCache: true };
+      if (wasteCategoriesCached) {
+        return { wasteCategories: wasteCategoriesCached, fromCache: true };
+      }
+
+      const wasteCategories = await this.wasteCategoriesRepository.getAll({
+        orderBy: {
+          categoryCode: 'asc',
+        },
+      });
+
+      if (wasteCategories.length === 0) {
+        throw ErrorFactory.notFoundError('Waste Categories is Empty');
+      }
+
+      await this.cache.set(cacheKey.wasteCategories(), wasteCategories);
+
+      logger.info(`${this.serviceName}: End getting all waste categories`);
+
+      return { wasteCategories, fromCache: false };
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
-
-    const wasteCategories = await this.wasteCategoriesRepository.getAll({
-      orderBy: {
-        categoryCode: 'asc',
-      },
-    });
-
-    if (wasteCategories.length === 0) {
-      logger.warn(`[Waste Categories Service]: Waste categories is empty`);
-      throw ErrorFactory.notFoundError('Waste Categories is Empty');
-    }
-
-    await this.cache.set(cacheKey.wasteCategories(), wasteCategories);
-
-    logger.info(`[Waste Categories Service]: End getting all waste categories`);
-
-    return { wasteCategories, fromCache: false };
   };
 
   getWasteCategoryById = async (wasteCategoryId: string) => {
-    logger.info(
-      `[Waste Categories Service]: Getting waste category by id ${wasteCategoryId}`,
-    );
-
-    const result =
-      await this.wasteCategoriesRepository.getById(wasteCategoryId);
-
-    if (!result) {
-      logger.error(
-        `[Waste Categories Service]: Failed to get waste category by id ${wasteCategoryId}`,
+    try {
+      logger.info(
+        `${this.serviceName}: Getting waste category by id ${wasteCategoryId}`,
       );
 
-      throw ErrorFactory.notFoundError('Waste Category is Not Found');
+      const wasteCategoryById =
+        await this.wasteCategoriesRepository.getById(wasteCategoryId);
+
+      if (!wasteCategoryById) {
+        throw ErrorFactory.notFoundError('Waste Category is Not Found');
+      }
+
+      logger.info(`${this.serviceName}: End getting waste category by id`);
+
+      return wasteCategoryById;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
-
-    logger.info('[Waste Categories Service]: End getting waste category by id');
-
-    return result;
   };
 
   updateWasteCategory = async ({
@@ -116,33 +121,46 @@ export default class WasteCategoriesService {
     colorHex,
     pointsReward,
   }: UpdateWasteCategoriesType) => {
-    logger.info('[Waste Categories Service]: Updating waste category');
+    try {
+      logger.info(`${this.serviceName}: Updating waste category`);
 
-    const result = await this.wasteCategoriesRepository.update({
-      id,
-      categoryName,
-      description,
-      handlingTips,
-      colorHex,
-      pointsReward,
-    });
+      const wasteCategoryUpdate = await this.wasteCategoriesRepository.update({
+        id,
+        categoryName,
+        description,
+        handlingTips,
+        colorHex,
+        pointsReward,
+      });
 
-    await this.cache.del(cacheKey.wasteCategories());
+      await this.cache.del(cacheKey.wasteCategories());
 
-    logger.info('[Waste Categories Service]: End update waste category');
+      logger.info(`${this.serviceName}: End update waste category`);
 
-    return result;
+      return wasteCategoryUpdate;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
   };
 
   deleteWasteCategory = async (wasteCategoryId: string) => {
-    logger.info('[Waste Categories Service]: Deleting waste category');
+    try {
+      logger.info(`${this.serviceName}: Deleting waste category`);
 
-    const result = await this.wasteCategoriesRepository.delete(wasteCategoryId);
+      const wasteCategoryDelete =
+        await this.wasteCategoriesRepository.delete(wasteCategoryId);
 
-    await this.cache.del(cacheKey.wasteCategories());
+      if (!wasteCategoryDelete) {
+        throw ErrorFactory.notFoundError('Waste Category is Not Found');
+      }
 
-    logger.info('[Waste Categories Service]: End delete waste category');
+      await this.cache.del(cacheKey.wasteCategories());
 
-    return result;
+      logger.info(`${this.serviceName}: End delete waste category`);
+
+      return wasteCategoryDelete;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
   };
 }

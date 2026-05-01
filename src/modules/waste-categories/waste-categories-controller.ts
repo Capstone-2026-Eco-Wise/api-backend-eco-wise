@@ -22,16 +22,15 @@ export default class WasteCategoriesController {
     );
   };
 
-  getAll = async (_: Request, res: Response) => {
-    const { fromCache, wasteCategories } =
-      await this.wasteCategoriesService.getAllWasteCategories();
+  getAll = async (req: Request, res: Response) => {
+    const result = await this.wasteCategoriesService.getAllWasteCategories();
 
     return ResponseServer.success(
       res,
       200,
       'Succesfully get all waste categories',
-      wasteCategories,
-      fromCache,
+      result?.wasteCategories,
+      result?.fromCache,
     );
   };
 

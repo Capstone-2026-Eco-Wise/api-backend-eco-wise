@@ -9,11 +9,7 @@ export default class RedisClient {
 
   constructor() {
     this.client = createClient({
-      socket: {
-        host: env.REDIS_HOST,
-        port: Number(env.REDIS_PORT),
-      },
-      database: Number(env.REDIS_DATABASE),
+      url: env.REDIS_URL as string,
     });
 
     this.client.on('error', (error) => {
@@ -42,14 +38,14 @@ export default class RedisClient {
       await this.client.connect();
       this.isConnected = true;
     }
-  }
+  };
 
   disconnect = async () => {
     if (this.isConnected) {
       await this.client.quit();
       this.isConnected = false;
     }
-  }
+  };
 
   getClient(): RedisClientType {
     return this.client;

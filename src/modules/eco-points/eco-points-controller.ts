@@ -9,6 +9,19 @@ export default class EcoPointsController {
     this.ecoPointsService = ecoPointsService;
   }
 
+  getStreak = async (req: Request, res: Response) => {
+    const { ecoPoints, fromCache } =
+      await this.ecoPointsService.getStreakStatus(req.user?.id as string);
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Successfuly get eco points and streak status',
+      ecoPoints,
+      fromCache,
+    );
+  };
+
   updatePoint = async (req: Request, res: Response) => {
     const { pointUpdate } = req.body;
 
@@ -20,20 +33,8 @@ export default class EcoPointsController {
     return ResponseServer.success(
       res,
       201,
-      'Successfuly get eco points by user',
+      'Successfuly update eco points',
       result,
-    );
-  };
-
-  getStreak = async (req: Request, res: Response) => {
-    const streakStatus = await this.ecoPointsService.getStreakStatus(
-      req.user?.id as string,
-    );
-    return ResponseServer.success(
-      res,
-      200,
-      'Successfuly get eco points by user',
-      streakStatus,
     );
   };
 }

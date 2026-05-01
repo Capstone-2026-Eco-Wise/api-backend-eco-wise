@@ -8,13 +8,12 @@ import type EcoPointsRepository from './eco-points-repository.ts';
 export default class EcoPointsService {
   private ecoPointsRepository: EcoPointsRepository;
   private cache: CacheService;
+  private serviceName: string;
 
-  constructor(
-    ecoPointsRepository: EcoPointsRepository,
-    cache: CacheService,
-  ) {
+  constructor(ecoPointsRepository: EcoPointsRepository, cache: CacheService) {
     this.ecoPointsRepository = ecoPointsRepository;
     this.cache = cache;
+    this.serviceName = '[Eco Points Service]';
   }
 
   private getDiffDaysFromToday = (
@@ -88,7 +87,7 @@ export default class EcoPointsService {
   createDefaultPointUser = async (userId: string) => {
     try {
       logger.info(
-        `[EcoPointsService]: Starting create default point for user ${userId}`,
+        `${this.serviceName}: Starting create default point for user ${userId}`,
       );
 
       const totalPoints: number = 0;
@@ -105,117 +104,73 @@ export default class EcoPointsService {
       });
 
       if (!ecoPointsData) {
-        logger.warn(
-          `[EcoPointsService]: Failed to create default point for user ${userId}`,
-        );
-
         throw ErrorFactory.clientError('Failed to create eco points');
       }
 
       logger.info(
-        `[EcoPointsService]: Default point created successfully for user ${userId}`,
+        `${this.serviceName}: Default point created successfully for user ${userId}`,
       );
 
       return ecoPointsData;
     } catch (error) {
-      const err = error as Error;
-      logger.error(
-        `[EcoPointsService]: Error creating default points for user ${userId} ${err.message}`,
-      );
-      throw ErrorFactory.serverError(err.message);
-    }
-  };
-
-  getEcoPointsByUser = async (userId: string) => {
-    try {
-      logger.info(
-        `[EcoPointsService]: Starting get eco points for user ${userId}`,
-      );
-
-      const cachedPoints = await this.cache.get(cacheKey.ecoPoints(userId));
-
-      if (cachedPoints) {
-        logger.info(
-          `[EcoPointsService]: Get eco points from cache for user ${userId}`,
-        );
-        return { ...cachedPoints, fromCache: true };
-      }
-
-      const ecoPoints = await this.ecoPointsRepository.getByUserId(userId);
-
-      if (!ecoPoints) {
-        logger.warn(
-          `[EcoPointsService]: No eco points found for user ${userId}`,
-        );
-
-        throw ErrorFactory.notFoundError('Eco points not found');
-      }
-
-      await this.cache.set(cacheKey.ecoPoints(userId), ecoPoints);
-
-      logger.info(
-        `[EcoPointsService]: Eco points retrieved successfully for user ${userId}`,
-      );
-
-      return { ...ecoPoints, fromCache: false };
-    } catch (error) {
-      const err = error as Error;
-      logger.error(
-        `[EcoPointsService]: Error eco points for user ${userId} ${err.message}`,
-      );
-      throw ErrorFactory.serverError(err.message);
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
   getStreakStatus = async (userId: string) => {
     try {
       logger.info(
-        `[EcoPointsService]: Starting get streak status for user ${userId}`,
+        `${this.serviceName}: Starting get streak status for user ${userId}`,
       );
 
-      let currentEcoPointsUser = await this.cache.get(
+      const ecoPointsUserCached = await this.cache.get(
         cacheKey.ecoPoints(userId),
       );
 
-      if (!currentEcoPointsUser) {
-        currentEcoPointsUser =
-          await this.ecoPointsRepository.currentPointAndStreakUser(userId);
-        if (currentEcoPointsUser) {
-          await this.cache.set(
-            cacheKey.ecoPoints(userId),
-            currentEcoPointsUser,
-          );
-        }
+      if (ecoPointsUserCached) {
+        return { ecoPoints: ecoPointsUserCached, fromCache: true };
       }
 
-      if (!currentEcoPointsUser || !currentEcoPointsUser.lastActiveDate) {
+      const ecoPointsUser = await this.ecoPointsRepository.getByUserId(userId);
+
+      // when user first time -> lastActiveDate is NULL
+      if (!ecoPointsUser || !ecoPointsUser.lastActiveDate) {
+        await this.createDefaultPointUser(userId);
+
         return {
+          totalPoints: ecoPointsUser?.totalPoints || 0,
           currentStreak: 0,
-          longestStreak: currentEcoPointsUser?.longestStreak || 0,
+          longestStreak: ecoPointsUser?.longestStreak || 0,
           status: 'never',
           message: 'Mulai streak pertamamu dengan scan hari ini!',
         };
       }
 
+      // status streak and diffDays from lastActiveDate
       const { status, message, diffDays } = this.statusStreak(
-        currentEcoPointsUser.lastActiveDate,
-        currentEcoPointsUser.currentStreak,
+        ecoPointsUser.lastActiveDate,
+        ecoPointsUser.currentStreak,
       );
 
-      return {
-        currentStreak: currentEcoPointsUser.currentStreak,
-        longestStreak: currentEcoPointsUser.longestStreak,
-        lastActiveDate: currentEcoPointsUser.lastActiveDate,
+      const resposePoints = {
         diffDays,
         status,
         message,
+        currentStreak: ecoPointsUser.currentStreak,
+        longestStreak: ecoPointsUser.longestStreak,
+        totalPoints: ecoPointsUser.totalPoints,
+        lastActiveDate: ecoPointsUser.lastActiveDate,
       };
-    } catch (error) {
-      const err = error as Error;
-      logger.error(
-        `[EcoPointsService]: Error streak status for user ${userId} ${err.message}`,
+
+      await this.cache.set(cacheKey.ecoPoints(userId), resposePoints);
+
+      logger.info(
+        `${this.serviceName}: Streak status retrieved successfully for user ${userId}`,
       );
-      throw ErrorFactory.serverError(err.message);
+
+      return { ecoPoints: resposePoints, fromCache: false };
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -225,15 +180,13 @@ export default class EcoPointsService {
   }: PayloadUpdateTotalPointsType) => {
     try {
       logger.info(
-        `[EcoPointsService]: Starting eco points update for user ${userId}`,
+        `${this.serviceName}: Starting eco points update for user ${userId}`,
       );
 
       const currentPoints =
         await this.ecoPointsRepository.currentPointAndStreakUser(userId);
 
       if (!currentPoints) {
-        logger.warn(`[EcoPointsService]: Eco points not found ${userId}`);
-
         throw ErrorFactory.notFoundError('Eco points not found');
       }
 
@@ -261,26 +214,18 @@ export default class EcoPointsService {
         });
 
       if (!totalPointsUpdate) {
-        logger.warn(
-          `[EcoPointsService]: Failed to update eco points for user ${userId}`,
-        );
-
         throw ErrorFactory.clientError('Failed to update eco points');
       }
 
       await this.cache.del(cacheKey.ecoPoints(userId));
 
       logger.info(
-        `[EcoPointsService]: Eco points updated successfully for user ${userId}`,
+        `${this.serviceName}: Eco points updated successfully for user ${userId}`,
       );
 
       return totalPointsUpdate;
     } catch (error) {
-      const err = error as Error;
-      logger.error(
-        `[EcoPointsService]: Error updating eco points for user ${userId} ${err.message}`,
-      );
-      throw ErrorFactory.serverError(err.message);
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

@@ -1,3 +1,4 @@
+import { logger } from '../infrastructure/logger/logger.ts';
 import { AppError } from './app-error.ts';
 
 export class ErrorFactory {
@@ -5,7 +6,18 @@ export class ErrorFactory {
     return new AppError(message, statusCode, name);
   }
 
-  public static clientError = (
+  static handlerServiceError = (err: unknown, serviceName: string): never => {
+    const error = err as Error;
+
+    if ((error as AppError).statusCode) {
+      logger.error(`${serviceName}: ${error.message}`);
+      throw error;
+    }
+    logger.error(`${serviceName}: ${error.message}`);
+    throw this.serverError(error.message);
+  };
+
+  static clientError = (
     message: string,
     statusCode = 400,
     name = 'Client Error',
@@ -24,21 +36,18 @@ export class ErrorFactory {
     }
   };
 
-  public static notFoundError = (
-    message: string,
-    name = 'Resource Not Found',
-  ) => {
+  static notFoundError = (message: string, name = 'Resource Not Found') => {
     return this.build(message, 404, name);
   };
 
-  public static authenticationError = (
+  static authenticationError = (
     message: string,
     name = 'Authentication Error',
   ) => {
     return this.build(message, 401, name);
   };
 
-  public static authorizationError = (
+  static authorizationError = (
     message: string,
     statusCode = 403,
     name = 'Authorization Error',
@@ -46,7 +55,7 @@ export class ErrorFactory {
     return this.build(message, statusCode, name);
   };
 
-  public static serverError = (
+  static serverError = (
     message: string,
     statusCode = 500,
     name = 'Server Error',

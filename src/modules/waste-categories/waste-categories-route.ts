@@ -5,7 +5,7 @@ import {
   validateParams,
   validateSchema,
 } from '../../middlewares/validation-middleware.ts';
-import { container } from '../../utils/containser.ts';
+import { container } from '../../utils/container.ts';
 import WasteCategoriesController from './waste-categories-controller.ts';
 import {
   createWasteCategorySchema,

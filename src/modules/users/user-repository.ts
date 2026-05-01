@@ -32,7 +32,7 @@ export default class UserRepository {
     return await supabase.auth.signOut();
   };
 
-  updateAvatarUser = async (id: string, avatarUrl: string) => {
+  updateAvatarUser = async (id: string, avatarUrl: string | null) => {
     return await prisma.users.update({
       where: {
         id,
