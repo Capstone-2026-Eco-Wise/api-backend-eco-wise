@@ -6,7 +6,7 @@ export class ErrorFactory {
     return new AppError(message, statusCode, name);
   }
 
-  static handlerServiceError = (err: unknown, serviceName: string): never => {
+  static handlerServiceError(err: unknown, serviceName: string): never {
     const error = err as Error;
 
     if ((error as AppError).statusCode) {
@@ -15,7 +15,7 @@ export class ErrorFactory {
     }
     logger.error(`${serviceName}: ${error.message}`);
     throw this.serverError(error.message);
-  };
+  }
 
   static clientError = (
     message: string,
