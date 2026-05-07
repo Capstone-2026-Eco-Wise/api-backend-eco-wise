@@ -1,9 +1,5 @@
 import cors from 'cors';
-import express, {
-  type Application,
-  type Request,
-  type Response,
-} from 'express';
+import express, { type Application, type Response } from 'express';
 import helmet from 'helmet';
 import {
   endpointNotFoundHandler,
@@ -11,7 +7,6 @@ import {
 } from './middlewares/error-middleware.ts';
 import router from './routes/route.ts';
 import { env } from './utils/env.ts';
-import { formatUptime } from './utils/formated-time.ts';
 
 class App {
   public app: Application = express();

@@ -20,30 +20,33 @@ enum LABEL_CLASSIFICATION {
 }
 
 model Users {
-  id         String     @id @default(uuid()) @db.Uuid
-  fullName   String     @map("full_name") @db.VarChar(100)
-  username   String     @unique @db.VarChar(50)
-  email      String     @unique @db.VarChar(100)
-  role       ROLE_USER  @default(user)
+  id         String    @id @default(uuid()) @db.Uuid
+  fullName   String    @map("full_name") @db.VarChar(100)
+  username   String    @unique @db.VarChar(50)
+  email      String    @unique @db.VarChar(100)
+  role       ROLE_USER @default(user)
   avatar_url String?
-  created_at DateTime   @default(now())
-  updated_at DateTime   @default(now()) @updatedAt
-  ecoPoints  ecoPoints?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now()) @updatedAt
+
+  ecoPoints     ecoPoints?
+  scanHistories scanHistory[]
 
   @@map("users")
 }
 
 model wasteCategories {
-  id           String       @id @default(uuid()) @db.Uuid
-  categoryCode String       @unique @map("category_code") @db.VarChar()
-  categoryName String       @map("category_name") @db.VarChar()
-  description  String?      @db.Text
-  handlingTips String?      @map("handling_tips") @db.Text
-  colorHex     String?      @map("color_hex") @db.VarChar()
-  pointsReward Int          @map("points_reward")
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at")
-  dailyTasks   dailyTasks[]
+  id           String   @id @default(uuid()) @db.Uuid
+  categoryCode String   @unique @map("category_code") @db.VarChar()
+  categoryName String   @map("category_name") @db.VarChar()
+  description  String?  @db.Text
+  handlingTips String?  @map("handling_tips") @db.Text
+  colorHex     String?  @map("color_hex") @db.VarChar()
+  pointsReward Int      @map("points_reward")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  scanHistories scanHistory[]
 
   @@map("waste_categories")
 }
@@ -61,17 +64,34 @@ model ecoPoints {
   @@map("eco_points")
 }
 
-model dailyTasks {
-  id          String   @id @default(uuid()) @db.Uuid
-  categoryId  String   @db.Uuid
-  taskName    String   @map("task_name") @db.VarChar(100)
-  description String?  @db.Text
-  pointReward Int      @db.Integer
-  isActive    Boolean  @default(true) @map("is_active") @db.Boolean
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+// model dailyTasks {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   categoryId  String   @db.Uuid
+//   taskName    String   @map("task_name") @db.VarChar(100)
+//   description String?  @db.Text
+//   pointReward Int      @db.Integer
+//   isActive    Boolean  @default(true) @map("is_active") @db.Boolean
+//   createdAt   DateTime @default(now()) @map("created_at")
+//   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  category wasteCategories @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+//   category wasteCategories @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
-  @@map("daily_tasks")
+//   @@map("daily_tasks")
+// }
+
+model scanHistory {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  categoryId      String   @map("category_id") @db.Uuid
+  imageUrl        String   @map("image_url") @db.Text
+  confidenceScore Decimal  @map("confidence_score")
+  rawPredictions  Json?    @map("raw_predictions") @db.JsonB
+  pointEarned     Int      @map("point_earned")
+  scannedAt       DateTime @default(now()) @map("scanned_at") @db.Timestamp
+
+  user     Users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category wasteCategories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([scannedAt])
+  @@map("scan_history")
 }

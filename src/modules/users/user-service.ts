@@ -5,7 +5,11 @@ import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type StorageService from '../../services/storage-service.ts';
 import { storageConfig } from '../../services/storage-service.ts';
-import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
+import type {
+  UserSignInType,
+  UserSignUpType,
+  UserUpdateAvatarType,
+} from '../../types/user-type.ts';
 import type EcoPointsService from '../eco-points/eco-points-service.ts';
 import type UserRepository from './user-repository.ts';
 
@@ -30,7 +34,7 @@ export default class UserService {
   }
 
   registerUser = async ({
-    full_name,
+    fullName,
     email,
     password,
     username,
@@ -41,7 +45,7 @@ export default class UserService {
       const { data: userSignUp, error: errorUserSignUp } =
         await this.userRepository.signUpUser({
           email,
-          full_name,
+          fullName,
           password,
           username,
         });
@@ -85,6 +89,8 @@ export default class UserService {
         );
       }
 
+      await this.cache.del(cacheKey.userSession(userSignIn.user.id));
+
       logger.info(
         `${this.serviceName}: User logged in successfully for ${email}`,
       );
@@ -115,7 +121,7 @@ export default class UserService {
     }
   };
 
-  updateAvatarUser = async (user: Users, file: Express.Multer.File) => {
+  updateAvatarUser = async ({ user, file }: UserUpdateAvatarType) => {
     let newPublicUrl: string | null = null;
     try {
       logger.info(`${this.serviceName}: Updating avatar for user ${user.id}`);
@@ -163,9 +169,9 @@ export default class UserService {
     }
   };
 
-  logoutUser = async (userId: string) => {
+  logoutUser = async (user: Users) => {
     try {
-      logger.info(`${this.serviceName}: User is logging out`);
+      logger.info(`${this.serviceName}: User logging out`);
 
       const { error: errorUserLogOut } = await this.userRepository.userLogOut();
 
@@ -177,8 +183,10 @@ export default class UserService {
       }
 
       // Clean up cache
-      await this.cache.del(cacheKey.userSession(userId));
-      await this.cache.del(cacheKey.ecoPoints(userId));
+      logger.info(`[CLEAN UP CACHE]: for user ${user.id}`);
+      await this.cache.del(cacheKey.userSession(user.id));
+      await this.cache.del(cacheKey.ecoPoints(user.id));
+      await this.cache.del(cacheKey.scanHistory(user.id));
 
       logger.info(`${this.serviceName}: User has been logged out`);
 

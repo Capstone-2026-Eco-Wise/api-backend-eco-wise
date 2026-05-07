@@ -1,20 +1,21 @@
-export type CreateEcoPointsTypes = {
+type PayloadEcoPointsType = {
   userId: string;
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: Date;
+};
+
+export type CreateEcoPointsTypes = PayloadEcoPointsType & {
   totalPoints: number;
-  currentStreak: number;
-  longestStreak: number;
-  lastActiveDate: Date;
 };
 
-export type UpdateTotalPointsType = {
-  userId: string;
+export type UpdateTotalPointsType = PayloadEcoPointsType & {
   newPoints: number;
-  currentStreak: number;
-  longestStreak: number;
-  lastActiveDate: Date;
 };
 
-export type PayloadUpdateTotalPointsType = {
-  userId: string;
+export type PayloadUpdateTotalPointsType = Omit<
+  PayloadEcoPointsType,
+  'currentStreak' | 'longestStreak' | 'lastActiveDate'
+> & {
   pointUpdate: number;
 };

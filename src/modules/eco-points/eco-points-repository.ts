@@ -7,10 +7,10 @@ import type {
 export default class EcoPointsRepository {
   createDefaultPoints = async ({
     userId,
-    totalPoints,
     currentStreak,
     longestStreak,
     lastActiveDate,
+    totalPoints,
   }: CreateEcoPointsTypes) => {
     return await prisma.ecoPoints.create({
       data: {

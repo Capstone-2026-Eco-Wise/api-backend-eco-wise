@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import type { FileFilterCallback, StorageEngine } from 'multer';
 import multer from 'multer';
-import { ErrorFactory } from '../errors/error-factory';
+import { ErrorFactory } from '../errors/error-factory.ts';
 
 export default class UploadMiddleware {
   private storage: StorageEngine;
@@ -31,9 +31,6 @@ export default class UploadMiddleware {
     }
   };
 
-  /**
-   * upload single file
-   */
   public uploadSingle = (fieldName: string) => {
     return multer({
       storage: this.storage,

@@ -3,4 +3,5 @@ export const cacheKey = {
   wasteCategories: (key?: string) =>
     key ? `waste-categories:all:${key}` : 'waste-categories:all',
   ecoPoints: (key: string) => `eco-points:user:${key}`,
+  scanHistory: (key: string) => `scan-history:user:${key}`,
 };

@@ -1,9 +1,10 @@
 import { Router, type Response } from 'express';
+import ecoPointsRoute from '../modules/eco-points/eco-points-route.ts';
+import scanHistoryRoute from '../modules/scan-history/scan-history-route.ts';
 import userRoute from '../modules/users/user-route.ts';
 import wasteCategoriesRoute from '../modules/waste-categories/waste-categories-route.ts';
-import ecoPointsRoute from '../modules/eco-points/eco-points-route.ts';
-import { formatUptime } from '../utils/formated-time.ts';
 import { env } from '../utils/env.ts';
+import { formatUptime } from '../utils/formated-time.ts';
 
 class MainRouter {
   public router: Router;
@@ -18,6 +19,7 @@ class MainRouter {
     this.router.use('/users', userRoute);
     this.router.use('/waste-categories', wasteCategoriesRoute);
     this.router.use('/eco-points', ecoPointsRoute);
+    this.router.use('/scan-history', scanHistoryRoute);
   };
 
   private healthRoute = (): void => {

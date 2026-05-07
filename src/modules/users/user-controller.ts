@@ -61,7 +61,10 @@ export default class UserController {
       return ResponseServer.error(res, 400, 'Image is required');
     }
 
-    const user = await this.userService.updateAvatarUser(req.user, req.file);
+    const user = await this.userService.updateAvatarUser({
+      user: req.user,
+      file: req.file,
+    });
 
     return ResponseServer.success(
       res,
@@ -76,7 +79,7 @@ export default class UserController {
       return ResponseServer.error(res, 401, 'Session not found');
     }
 
-    const { message } = await this.userService.logoutUser(req.user.id);
+    const { message } = await this.userService.logoutUser(req.user);
 
     return ResponseServer.success(res, 200, message, null);
   };

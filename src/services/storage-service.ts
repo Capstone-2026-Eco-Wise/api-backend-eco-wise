@@ -32,7 +32,7 @@ export default class StorageService {
     return urlData;
   };
 
-  extractPathFromUrl = (publicUrl: string): string => {
+  private extractPathFromUrl = (publicUrl: string): string => {
     const urlParts = publicUrl.split(`/public/${storageConfig.bucketName}/`);
 
     if (urlParts.length !== 2) {

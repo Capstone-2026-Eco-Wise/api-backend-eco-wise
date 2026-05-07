@@ -82,4 +82,10 @@ export default class WasteCategoriesRepository {
       },
     });
   };
+
+  getCategoriesByCode = async (categoryCode: string) => {
+    return await prisma.wasteCategories.findUnique({
+      where: { categoryCode },
+    });
+  };
 }

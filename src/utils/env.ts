@@ -13,6 +13,7 @@ const envSchema = z.object({
   DIRECT_URL: z.url(),
   SUPABASE_URL: z.url('SUPABASE_URL must be a valid URL'),
   SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required'),
+  AI_API_URL: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

@@ -4,7 +4,7 @@ import type { UserSignInType, UserSignUpType } from '../../types/user-type.ts';
 
 export default class UserRepository {
   signUpUser = async ({
-    full_name,
+    fullName,
     email,
     password,
     username,
@@ -14,7 +14,7 @@ export default class UserRepository {
       password,
       options: {
         data: {
-          full_name,
+          full_name: fullName,
           username,
         },
       },

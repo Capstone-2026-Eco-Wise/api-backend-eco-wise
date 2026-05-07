@@ -12,13 +12,15 @@ declare global {
 }
 
 export type UserSignUpType = {
-  full_name: string;
+  fullName: string;
   email: string;
   password: string;
   username: string;
 };
 
-export type UserSignInType = {
-  email: string;
-  password: string;
+export type UserSignInType = Omit<UserSignUpType, 'fullName' | 'username'>;
+
+export type UserUpdateAvatarType = {
+  user: Users;
+  file: Express.Multer.File;
 };

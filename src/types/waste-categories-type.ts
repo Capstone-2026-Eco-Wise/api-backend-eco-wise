@@ -1,3 +1,4 @@
+
 export type CreateWasteCategoriesType = {
   categoryCode: string;
   categoryName: string;

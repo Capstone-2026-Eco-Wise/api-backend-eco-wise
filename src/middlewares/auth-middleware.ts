@@ -1,8 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
+import { ErrorFactory } from '../errors/error-factory.ts';
+import { cacheKey } from '../infrastructure/cache/cache-key.ts';
+import { prisma } from '../infrastructure/database/prisma-client.ts';
 import { supabase } from '../infrastructure/database/supabase.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
+import { container } from '../utils/container.ts';
 import ResponseServer from '../utils/response-server.ts';
-import { prisma } from '../infrastructure/database/prisma-client.ts';
+
+const middlewareName = '[Auth Middleware]';
 
 export const authMiddleware = async (
   req: Request,
@@ -13,7 +18,7 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn('[Auth Middleware]: Unauthorized attempt without token');
+      logger.warn(`${middlewareName}: Unauthorized attempt without token`);
       return ResponseServer.error(res, 401, 'Unauthorized. Please log in.');
     }
 
@@ -22,19 +27,25 @@ export const authMiddleware = async (
     const { data, error } = await supabase.auth.getUser(token);
 
     if (error || !data.user) {
-      logger.warn(`[Auth Middleware]: Invalid or expired token`);
+      logger.warn(`${middlewareName}: Invalid or expired token`);
       return ResponseServer.error(res, 401, 'Unauthenticated, please login');
     }
 
-    const dbUser = await prisma.users.findUnique({
-      where: {
-        id: data.user.id,
-      },
-    });
+    const userId = data.user.id;
+
+    let dbUser = await container.cacheService.get(cacheKey.userSession(userId));
 
     if (!dbUser) {
-      logger.warn(`[Auth Middleware]: User not found in database`);
-      return ResponseServer.error(res, 404, 'User not found in database');
+      dbUser = await prisma.users.findUnique({
+        where: { id: userId },
+      });
+
+      if (!dbUser) {
+        logger.warn(`${middlewareName}: User not found in database`);
+        return ResponseServer.error(res, 404, 'User not found in database');
+      }
+
+      await container.cacheService.set(cacheKey.userSession(userId), dbUser);
     }
 
     req.user = dbUser;
@@ -42,8 +53,6 @@ export const authMiddleware = async (
 
     next();
   } catch (error) {
-    const err = error as Error;
-    logger.error(`[Auth Middleware Error]: ${err.message}`);
-    return ResponseServer.error(res, 500, err.message);
+    ErrorFactory.handlerServiceError(error, middlewareName);
   }
 };
