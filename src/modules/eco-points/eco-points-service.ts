@@ -2,7 +2,7 @@ import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
-import type { PayloadUpdateTotalPointsType } from '../../types/eco-points-type.ts';
+import type { PayloadUpdateTotalPointsType } from './eco-points-type.ts';
 import type EcoPointsRepository from './eco-points-repository.ts';
 
 export default class EcoPointsService {

@@ -10,17 +10,3 @@ declare global {
     }
   }
 }
-
-export type UserSignUpType = {
-  fullName: string;
-  email: string;
-  password: string;
-  username: string;
-};
-
-export type UserSignInType = Omit<UserSignUpType, 'fullName' | 'username'>;
-
-export type UserUpdateAvatarType = {
-  user: Users;
-  file: Express.Multer.File;
-};

@@ -1,4 +1,8 @@
 import CacheService from '../infrastructure/cache/cache-service.ts';
+import AuthRepository from '../modules/auth/auth-repository.ts';
+import AuthService from '../modules/auth/auth-service.ts';
+import DailyTasksRepository from '../modules/daily-tasks/daily-tasks-repository.ts';
+import DailyTasksService from '../modules/daily-tasks/daily-tasks-service.ts';
 import EcoPointsRepository from '../modules/eco-points/eco-points-repository.ts';
 import EcoPointsService from '../modules/eco-points/eco-points-service.ts';
 import ScanHistoryRepository from '../modules/scan-history/scan-history-repository.ts';
@@ -12,23 +16,27 @@ import StorageService from '../services/storage-service.ts';
 
 // Init all infrastructure and repository
 const userRepository = new UserRepository();
+const authRepository = new AuthRepository();
 const wasteCategoriesRepository = new WasteCategoriesRepository();
 const ecoPointsRepository = new EcoPointsRepository();
 const scanHistoryRepository = new ScanHistoryRepository();
+const dailyTasksRepository = new DailyTasksRepository();
 
-// Init all service
 const cacheService = new CacheService();
 const storageService = new StorageService();
 const aiService = new AiService();
-
 const ecoPointsService = new EcoPointsService(
   ecoPointsRepository,
   cacheService,
 );
 const userService = new UserService(
   userRepository,
-  ecoPointsService,
   storageService,
+  cacheService,
+);
+const authService = new AuthService(
+  authRepository,
+  ecoPointsService,
   cacheService,
 );
 const wasteCategoriesService = new WasteCategoriesService(
@@ -42,11 +50,17 @@ const scanHistoryService = new ScanHistoryService(
   wasteCategoriesRepository,
   cacheService,
 );
+const dailyTasksService = new DailyTasksService(
+  dailyTasksRepository,
+  cacheService,
+);
 
 export const container = {
   cacheService,
-  ecoPointsService,
   userService,
+  authService,
+  ecoPointsService,
   wasteCategoriesService,
   scanHistoryService,
+  dailyTasksService,
 };

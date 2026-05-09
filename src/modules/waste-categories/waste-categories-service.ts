@@ -2,11 +2,11 @@ import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
+import type WasteCategoriesRepository from './waste-categories-repository.ts';
 import type {
   CreateWasteCategoriesType,
   UpdateWasteCategoriesType,
-} from '../../types/waste-categories-type.ts';
-import type WasteCategoriesRepository from './waste-categories-repository.ts';
+} from './waste-categories-type.ts';
 
 export default class WasteCategoriesService {
   private wasteCategoriesRepository: WasteCategoriesRepository;

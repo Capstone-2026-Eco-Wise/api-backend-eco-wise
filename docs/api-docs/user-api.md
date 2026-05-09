@@ -2,104 +2,17 @@
 
 Base URL: `/api/users`
 
-Semua endpoint untuk `GET /me` dan `POST /sign-out` membutuhkan Header Authentication.
+Semua endpoint untuk module User membutuhkan Header Authentication.
 
 ## Headers
+
 ```http
 Authorization: Bearer <token>
 ```
 
 ---
 
-## 1. Register User (Sign Up)
-
-Endpoint untuk mendaftarkan akun baru.
-
-**URL:** `/sign-up`
-**Method:** `POST`
-**Rate Limit:** Maksimal 5 request per 15 menit per IP.
-
-### Request Body
-```json
-{
-  "full_name": "John Doe",
-  "email": "johndoe@example.com",
-  "password": "StrongPassword123!",
-  "username": "johndoe99"
-}
-```
-
-### Success Response (201 Created)
-```json
-{
-  "status": 201,
-  "message": "User successfully registered",
-  "data": {
-    "user": {
-      "id": "uuid",
-      "email": "johndoe@example.com",
-      // ...
-    },
-    "session": {
-      "access_token": "jwt-token",
-      "refresh_token": "jwt-refresh-token",
-      // ...
-    }
-  }
-}
-```
-
-### Error Response (400 Bad Request)
-Jika validasi gagal atau email/username sudah digunakan.
-```json
-{
-  "status": 400,
-  "message": "Email already exists",
-  "data": null
-}
-```
-
----
-
-## 2. Login User (Sign In)
-
-Endpoint untuk masuk dan mendapatkan token akses.
-
-**URL:** `/sign-in`
-**Method:** `POST`
-**Rate Limit:** Maksimal 5 request per 15 menit per IP.
-
-### Request Body
-```json
-{
-  "email": "johndoe@example.com",
-  "password": "StrongPassword123!"
-}
-```
-
-### Success Response (200 OK)
-```json
-{
-  "status": 200,
-  "message": "User successfully signed in",
-  "data": {
-    "user": {
-      "id": "uuid",
-      "email": "johndoe@example.com",
-      // ...
-    },
-    "session": {
-      "access_token": "jwt-token",
-      "refresh_token": "jwt-refresh-token",
-      // ...
-    }
-  }
-}
-```
-
----
-
-## 3. Get Current User Session (Me)
+## 1. Get Current User Session (Me)
 
 Endpoint untuk mengambil data profil user yang sedang login berdasarkan token. Endpoint ini sudah terintegrasi dengan sistem caching Redis (akan mengambil data dari cache jika tersedia).
 
@@ -116,7 +29,8 @@ Endpoint untuk mengambil data profil user yang sedang login berdasarkan token. E
     "id": "uuid",
     "email": "johndoe@example.com",
     "full_name": "John Doe",
-    "username": "johndoe99"
+    "username": "johndoe99",
+    "avatar_url": "https://..."
   }
 }
 ```
@@ -133,18 +47,29 @@ Jika token tidak dikirim, kadaluarsa, atau tidak valid.
 
 ---
 
-## 4. Logout User (Sign Out)
+## 2. Update User Avatar
 
-Endpoint untuk mengeluarkan user dan menghapus sesinya di sistem Supabase.
+Endpoint untuk memperbarui foto profil (avatar) pengguna. Endpoint ini menerima form-data dengan file gambar (maksimal 5MB, format JPEG/PNG/WebP). Endpoint ini juga akan otomatis menghapus cache session user dan gambar lama di storage.
 
-**URL:** `/sign-out`
-**Method:** `POST`
+**URL:** `/me/avatar`
+**Method:** `PATCH`
+**Auth Required:** Yes
+**Content-Type:** `multipart/form-data`
+
+### Request Body (Form Data)
+- `avatar`: File gambar yang ingin diunggah.
 
 ### Success Response (200 OK)
 ```json
 {
   "status": 200,
-  "message": "User has been logged out",
-  "data": null
+  "message": "Successfuly update avatar user",
+  "data": {
+    "id": "uuid",
+    "email": "johndoe@example.com",
+    "full_name": "John Doe",
+    "username": "johndoe99",
+    "avatar_url": "https://url-ke-gambar-baru.jpg"
+  }
 }
 ```

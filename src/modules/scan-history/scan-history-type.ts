@@ -18,3 +18,4 @@ export type CreateScanHistoryType = {
   rawPredictions: string;
   scannedAt: Date;
 };
+

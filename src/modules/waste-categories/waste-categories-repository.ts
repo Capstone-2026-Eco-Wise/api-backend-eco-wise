@@ -3,7 +3,7 @@ import { prisma } from '../../infrastructure/database/prisma-client.ts';
 import type {
   CreateWasteCategoriesType,
   UpdateWasteCategoriesType,
-} from '../../types/waste-categories-type.ts';
+} from './waste-categories-type.ts';
 
 export default class WasteCategoriesRepository {
   create = async (

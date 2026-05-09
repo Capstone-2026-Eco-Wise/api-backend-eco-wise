@@ -15,7 +15,7 @@ export default class ScanHistoryController {
     }
 
     if (!req.file) {
-      return ResponseServer.error(res, 401, 'Image not found');
+      return ResponseServer.error(res, 400, 'Image not found');
     }
 
     const result = await this.scanHistoryService.processUserScan(
@@ -40,6 +40,24 @@ export default class ScanHistoryController {
       'Successfully fetched history scan',
       scanHistory,
       fromCache,
+    );
+  };
+
+  getById = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Unauthorized');
+    }
+
+    const result = await this.scanHistoryService.getScanHistoryDetail(
+      req.params.id as string,
+      req.user,
+    );
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Successfully fetched scan history detail',
+      result,
     );
   };
 }

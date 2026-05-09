@@ -47,6 +47,7 @@ model wasteCategories {
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   scanHistories scanHistory[]
+  dailyTasks    dailyTasks[]
 
   @@map("waste_categories")
 }
@@ -64,21 +65,6 @@ model ecoPoints {
   @@map("eco_points")
 }
 
-// model dailyTasks {
-//   id          String   @id @default(uuid()) @db.Uuid
-//   categoryId  String   @db.Uuid
-//   taskName    String   @map("task_name") @db.VarChar(100)
-//   description String?  @db.Text
-//   pointReward Int      @db.Integer
-//   isActive    Boolean  @default(true) @map("is_active") @db.Boolean
-//   createdAt   DateTime @default(now()) @map("created_at")
-//   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-
-//   category wasteCategories @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-
-//   @@map("daily_tasks")
-// }
-
 model scanHistory {
   id              String   @id @default(uuid()) @db.Uuid
   userId          String   @map("user_id") @db.Uuid
@@ -94,4 +80,20 @@ model scanHistory {
 
   @@index([scannedAt])
   @@map("scan_history")
+}
+
+model dailyTasks {
+  id          String   @id @default(uuid()) @db.Uuid
+  categoryId  String?  @db.Uuid
+  taskName    String   @map("task_name") @db.VarChar(100)
+  description String?  @db.Text
+  pointReward Int      @db.Integer
+  isActive    Boolean  @default(true) @map("is_active") @db.Boolean
+  activeDate  DateTime @map("active_date") @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  category wasteCategories? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("daily_tasks")
 }

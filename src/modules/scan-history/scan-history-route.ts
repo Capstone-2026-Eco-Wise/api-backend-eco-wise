@@ -20,7 +20,7 @@ class ScanHistoryRoute {
 
   routes(): Router {
     this.scanHistoryRoute.post(
-      '/scan',
+      '/',
       authMiddleware,
       this.uploadMiddleware.uploadSingle('image'),
       this.scanHistoryController.scan,
@@ -29,6 +29,11 @@ class ScanHistoryRoute {
       '/',
       authMiddleware,
       this.scanHistoryController.getAll,
+    );
+    this.scanHistoryRoute.get(
+      '/:id',
+      authMiddleware,
+      this.scanHistoryController.getById,
     );
 
     return this.scanHistoryRoute;

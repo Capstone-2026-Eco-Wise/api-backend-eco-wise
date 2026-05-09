@@ -1,4 +1,6 @@
 import { Router, type Response } from 'express';
+import authRoute from '../modules/auth/auth-route.ts';
+import dailyTasksRoute from '../modules/daily-tasks/daily-tasks-route.ts';
 import ecoPointsRoute from '../modules/eco-points/eco-points-route.ts';
 import scanHistoryRoute from '../modules/scan-history/scan-history-route.ts';
 import userRoute from '../modules/users/user-route.ts';
@@ -17,9 +19,11 @@ class MainRouter {
 
   private initializeRoutes = (): void => {
     this.router.use('/users', userRoute);
+    this.router.use('/auth', authRoute);
     this.router.use('/waste-categories', wasteCategoriesRoute);
     this.router.use('/eco-points', ecoPointsRoute);
     this.router.use('/scan-history', scanHistoryRoute);
+    this.router.use('/daily-tasks', dailyTasksRoute);
   };
 
   private healthRoute = (): void => {

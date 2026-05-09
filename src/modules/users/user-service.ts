@@ -5,101 +5,25 @@ import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type StorageService from '../../services/storage-service.ts';
 import { storageConfig } from '../../services/storage-service.ts';
-import type {
-  UserSignInType,
-  UserSignUpType,
-  UserUpdateAvatarType,
-} from '../../types/user-type.ts';
-import type EcoPointsService from '../eco-points/eco-points-service.ts';
 import type UserRepository from './user-repository.ts';
+import type { UserUpdateAvatarType } from './user-type.ts';
 
 export default class UserService {
   private userRepository: UserRepository;
-  private ecoPointsService: EcoPointsService;
   private storageService: StorageService;
   private cache: CacheService;
   private serviceName: string;
 
   constructor(
     userRepository: UserRepository,
-    ecoPointsService: EcoPointsService,
     storageService: StorageService,
     cache: CacheService,
   ) {
     this.userRepository = userRepository;
-    this.ecoPointsService = ecoPointsService;
     this.storageService = storageService;
     this.cache = cache;
     this.serviceName = '[User Service]';
   }
-
-  registerUser = async ({
-    fullName,
-    email,
-    password,
-    username,
-  }: UserSignUpType) => {
-    try {
-      logger.info(`${this.serviceName}: Signing up user with email: ${email}`);
-
-      const { data: userSignUp, error: errorUserSignUp } =
-        await this.userRepository.signUpUser({
-          email,
-          fullName,
-          password,
-          username,
-        });
-
-      if (errorUserSignUp || !userSignUp) {
-        throw ErrorFactory.clientError(
-          errorUserSignUp?.message as string,
-          errorUserSignUp?.status as number,
-        );
-      }
-
-      const ecoPoints = await this.ecoPointsService.createDefaultPointUser(
-        userSignUp.user?.id as string,
-      );
-
-      if (!ecoPoints) {
-        throw ErrorFactory.serverError('Error creating default point for user');
-      }
-
-      logger.info(
-        `${this.serviceName}: User signed up successfully for ${email}`,
-      );
-
-      return { ...userSignUp, ecoPoints };
-    } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
-    }
-  };
-
-  loginUser = async ({ email, password }: UserSignInType) => {
-    try {
-      logger.info(`${this.serviceName}: Logging in user with email: ${email}`);
-
-      const { data: userSignIn, error: errorUserSignIn } =
-        await this.userRepository.signInUser({ email, password });
-
-      if (errorUserSignIn) {
-        throw ErrorFactory.clientError(
-          errorUserSignIn.message,
-          errorUserSignIn.status,
-        );
-      }
-
-      await this.cache.del(cacheKey.userSession(userSignIn.user.id));
-
-      logger.info(
-        `${this.serviceName}: User logged in successfully for ${email}`,
-      );
-
-      return userSignIn;
-    } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
-    }
-  };
 
   sessionUser = async (user: Users) => {
     try {
@@ -138,10 +62,10 @@ export default class UserService {
 
       newPublicUrl = publicUrl;
 
-      const userUpdated = await this.userRepository.updateAvatarUser(
-        user.id as string,
-        newPublicUrl,
-      );
+      const userUpdated = await this.userRepository.updateAvatarUser({
+        id: user.id as string,
+        avatarUrl: newPublicUrl,
+      });
 
       if (!userUpdated) {
         throw ErrorFactory.clientError('Failed to update avatar');
@@ -165,36 +89,7 @@ export default class UserService {
           .deleteFileFromSupabase(newPublicUrl)
           .catch((err) => logger.error(`[Cleanup Error]: ${err.message}`));
       }
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
-    }
-  };
 
-  logoutUser = async (user: Users) => {
-    try {
-      logger.info(`${this.serviceName}: User logging out`);
-
-      const { error: errorUserLogOut } = await this.userRepository.userLogOut();
-
-      if (errorUserLogOut) {
-        throw ErrorFactory.clientError(
-          errorUserLogOut.message,
-          errorUserLogOut.status,
-        );
-      }
-
-      // Clean up cache
-      logger.info(`[CLEAN UP CACHE]: for user ${user.id}`);
-      await this.cache.del(cacheKey.userSession(user.id));
-      await this.cache.del(cacheKey.ecoPoints(user.id));
-      await this.cache.del(cacheKey.scanHistory(user.id));
-
-      logger.info(`${this.serviceName}: User has been logged out`);
-
-      return {
-        success: true,
-        message: 'User has been logged out',
-      };
-    } catch (error) {
       ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };

@@ -38,7 +38,12 @@ const createValidationMiddleware = (
       return next(ErrorFactory.clientError(formattedMessage));
     }
 
-    req[location] = parsed.data;
+    Object.defineProperty(req, location, {
+      value: parsed.data,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
 
     next();
   };

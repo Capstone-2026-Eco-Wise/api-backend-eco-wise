@@ -3,7 +3,7 @@ import FormData from 'form-data';
 import { ErrorFactory } from '../errors/error-factory.ts';
 import { env } from '../utils/env.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
-import type { ResponseAiType } from '../types/scan-history-type.ts';
+import type { ResponseAiType } from '../modules/scan-history/scan-history-type.ts';
 
 const instanceApi = axios.create({
   baseURL: env.AI_API_URL,

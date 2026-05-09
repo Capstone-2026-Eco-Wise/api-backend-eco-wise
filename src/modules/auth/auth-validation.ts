@@ -7,14 +7,14 @@ const passwordSchema = z
   .regex(/\d/, 'Password must contain at least one number')
   .regex(/\W/, 'Password must contain at least one special character');
 
-export const userSignUpValidation = z.object({
-  full_name: z.string().min(3, 'Full name must be at least 3 characters'),
+export const signUpValidation = z.object({
   email: z.email('Invalid email address').max(255, 'Email too long'),
-  password: passwordSchema,
+  fullName: z.string().min(3, 'Full name must be at least 3 characters'),
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  password: passwordSchema,
 });
 
-export const userSignInValidation = z.object({
+export const signInValidation = z.object({
   email: z.email('Invalid email address'),
   password: passwordSchema,
 });

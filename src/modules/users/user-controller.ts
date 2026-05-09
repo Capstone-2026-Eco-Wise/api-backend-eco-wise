@@ -9,33 +9,6 @@ export default class UserController {
     this.userService = userService;
   }
 
-  signUp = async (req: Request, res: Response) => {
-    const { ecoPoints, session } = await this.userService.registerUser(
-      req.body,
-    );
-
-    return ResponseServer.success(res, 201, 'User successfully registered', {
-      session,
-      ecoPoints,
-    });
-  };
-
-  signIn = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-
-    const { session } = await this.userService.loginUser({
-      email,
-      password,
-    });
-
-    return ResponseServer.success(
-      res,
-      200,
-      'User successfully signed in',
-      session,
-    );
-  };
-
   session = async (req: Request, res: Response) => {
     if (!req.user) {
       return ResponseServer.error(res, 401, 'Session not found');
@@ -72,15 +45,5 @@ export default class UserController {
       'Successfuly update avatar user',
       user,
     );
-  };
-
-  logOut = async (req: Request, res: Response) => {
-    if (!req.user) {
-      return ResponseServer.error(res, 401, 'Session not found');
-    }
-
-    const { message } = await this.userService.logoutUser(req.user);
-
-    return ResponseServer.success(res, 200, message, null);
   };
 }

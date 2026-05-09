@@ -16,7 +16,7 @@ Authorization: Bearer <token>
 
 Endpoint untuk menambahkan kategori sampah baru. Endpoint ini dibatasi hanya untuk user dengan _role_ admin.
 
-**URL:** `/create`
+**URL:** `/`
 **Method:** `POST`
 **Auth Required:** Yes
 **Role Required:** Admin
@@ -163,7 +163,7 @@ Jika ID kategori sampah tidak ditemukan di sistem.
 
 Endpoint untuk memperbarui data spesifik kategori sampah. Anda tidak bisa mengubah `categoryCode` (Omitted by schema). Endpoint ini akan secara otomatis membersihkan cache list kategori sampah.
 
-**URL:** `/update/:id`
+**URL:** `/:id`
 **Method:** `PATCH`
 **Auth Required:** Yes
 **Role Required:** Admin
@@ -208,7 +208,7 @@ Endpoint untuk memperbarui data spesifik kategori sampah. Anda tidak bisa mengub
 
 Endpoint untuk menghapus kategori sampah dari sistem. Menghapus kategori juga akan menghapus/mengosongkan data di _cache_.
 
-**URL:** `/delete/:id`
+**URL:** `/:id`
 **Method:** `DELETE`
 **Auth Required:** Yes
 **Role Required:** Admin

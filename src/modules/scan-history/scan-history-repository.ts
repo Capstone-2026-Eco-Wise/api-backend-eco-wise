@@ -1,6 +1,6 @@
 import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
-import type { CreateScanHistoryType } from '../../types/scan-history-type.ts';
+import type { CreateScanHistoryType } from './scan-history-type.ts';
 
 export default class ScanHistoryRepository {
   createScan = async ({
@@ -21,7 +21,7 @@ export default class ScanHistoryRepository {
         confidenceScore,
         pointEarned,
         scannedAt,
-      },  
+      },
     });
   };
 
@@ -34,6 +34,27 @@ export default class ScanHistoryRepository {
         userId,
       },
       ...option,
+    });
+  };
+
+  getHistoryScanById = async (id: string, userId: string) => {
+    return await prisma.scanHistory.findUnique({
+      where: {
+        id,
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            categoryCode: true,
+            categoryName: true,
+            description: true,
+            colorHex: true,
+            handlingTips: true,
+            pointsReward: true,
+          },
+        },
+      },
     });
   };
 }

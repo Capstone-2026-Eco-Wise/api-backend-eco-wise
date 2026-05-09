@@ -2,7 +2,7 @@ import { prisma } from '../../infrastructure/database/prisma-client.ts';
 import type {
   CreateEcoPointsTypes,
   UpdateTotalPointsType,
-} from '../../types/eco-points-type.ts';
+} from './eco-points-type.ts';
 
 export default class EcoPointsRepository {
   createDefaultPoints = async ({

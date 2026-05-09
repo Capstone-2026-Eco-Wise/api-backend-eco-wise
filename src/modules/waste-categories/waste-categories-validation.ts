@@ -17,7 +17,10 @@ export const createWasteCategorySchema = z.object({
     .optional(),
   colorHex: z
     .string('Color hex must be a string')
-    .min(7, 'Color hex must be at least 7 characters')
+    .regex(
+      /^#([0-9A-Fa-f]{3}){1,2}$/,
+      'Invalid hexadecimal color format. Use format #RGB or #RRGGBB',
+    )
     .optional(),
   pointsReward: z
     .number('Points reward must be a number')

@@ -26,7 +26,7 @@ class EcoPontsRoute {
 
     //! [test]
     this.ecoPointsRoute.post(
-      '/point',
+      '/',
       authMiddleware,
       validateSchema(updatePointSchema),
       this.ecoPointsController.updatePoint,

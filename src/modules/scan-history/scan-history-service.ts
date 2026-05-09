@@ -119,4 +119,27 @@ export default class ScanHistoryService {
       ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
+
+  getScanHistoryDetail = async (id: string, user: Users) => {
+    try {
+      logger.info(`${this.serviceName} processing get scan history detail`);
+
+      const scanHistory = await this.scanHistoryRepository.getHistoryScanById(
+        id,
+        user.id,
+      );
+
+      if (!scanHistory) {
+        throw ErrorFactory.clientError('Scan history not found', 404);
+      }
+
+      logger.info(
+        `${this.serviceName}: scan history detail fetched successfully`,
+      );
+
+      return scanHistory;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+    }
+  };
 }
