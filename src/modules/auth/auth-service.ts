@@ -55,7 +55,7 @@ export default class AuthService {
       );
 
       if (!ecoPoints) {
-        throw ErrorFactory.serverError('Error creating default point for user');
+        throw ErrorFactory.clientError('Error creating default point for user');
       }
 
       logger.info(
@@ -112,6 +112,7 @@ export default class AuthService {
       await this.cache.del(cacheKey.userSession(user.id));
       await this.cache.del(cacheKey.ecoPoints(user.id));
       await this.cache.del(cacheKey.scanHistory(user.id));
+      await this.cache.del(cacheKey.faqsByCreator(user.id));
 
       logger.info(`${this.serviceName}: User has been signed out`);
 

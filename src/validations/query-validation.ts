@@ -1,17 +1,12 @@
 import z from 'zod';
 
 export const queryValidation = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/, { message: 'Page must be a valid positive number' })
+  page: z.coerce.number('Invalid format page').optional().default(1),
+  limit: z.coerce.number('Invalid format limit').optional().default(10),
+  search: z.string('Invalid format search').optional().default(''),
+  sort: z.string('Invalid format sort').optional().default('createdAt'),
+  order: z
+    .enum(['asc', 'desc'], 'Invalid format order')
     .optional()
-    .transform((val) => (val ? Number(val) : 1)),
-  limit: z
-    .string()
-    .regex(/^\d+$/, { message: 'Limit must be a valid positive number' })
-    .optional()
-    .transform((val) => (val ? Number(val) : 10)),
-  search: z.string().optional(),
-  sortBy: z.string().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+    .default('desc'),
 });

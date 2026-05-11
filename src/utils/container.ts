@@ -5,6 +5,8 @@ import DailyTasksRepository from '../modules/daily-tasks/daily-tasks-repository.
 import DailyTasksService from '../modules/daily-tasks/daily-tasks-service.ts';
 import EcoPointsRepository from '../modules/eco-points/eco-points-repository.ts';
 import EcoPointsService from '../modules/eco-points/eco-points-service.ts';
+import FaqsRepository from '../modules/faqs/faqs-repository.ts';
+import FaqsService from '../modules/faqs/faqs-service.ts';
 import ScanHistoryRepository from '../modules/scan-history/scan-history-repository.ts';
 import ScanHistoryService from '../modules/scan-history/scan-history-service.ts';
 import UserRepository from '../modules/users/user-repository.ts';
@@ -17,6 +19,7 @@ import StorageService from '../services/storage-service.ts';
 // Init all infrastructure and repository
 const userRepository = new UserRepository();
 const authRepository = new AuthRepository();
+const faqsRepository = new FaqsRepository();
 const wasteCategoriesRepository = new WasteCategoriesRepository();
 const ecoPointsRepository = new EcoPointsRepository();
 const scanHistoryRepository = new ScanHistoryRepository();
@@ -39,6 +42,7 @@ const authService = new AuthService(
   ecoPointsService,
   cacheService,
 );
+const faqsService = new FaqsService(faqsRepository, cacheService);
 const wasteCategoriesService = new WasteCategoriesService(
   wasteCategoriesRepository,
   cacheService,
@@ -59,6 +63,7 @@ export const container = {
   cacheService,
   userService,
   authService,
+  faqsService,
   ecoPointsService,
   wasteCategoriesService,
   scanHistoryService,

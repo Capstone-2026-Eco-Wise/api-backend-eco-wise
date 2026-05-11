@@ -1,5 +1,6 @@
 import z from 'zod';
 import { uuidValidation } from '../../validations/uuid-validation.ts';
+import { queryValidation } from '../../validations/query-validation.ts';
 
 const activeDateSchema = z
   .string()
@@ -20,20 +21,12 @@ const payloadDailyTasksValidation = z.object({
 
 export const createDailyTasksValidation = payloadDailyTasksValidation;
 
-export const queryDailyTasksValidation = z.object({
+export const updateDailyTasksValidation = createDailyTasksValidation.partial();
+
+export const queryDailyTasksValidation = queryValidation.extend({
   category: uuidValidation.optional().nullable(),
   active: z
     .enum(['true', 'false'], { error: 'Invalid format active' })
     .optional()
     .transform((val) => (val === undefined ? undefined : val === 'true')),
-  search: z.string('Invalid format search').optional().default(''),
-  limit: z.coerce.number('Invalid format limit').optional().default(10),
-  page: z.coerce.number('Invalid format page').optional().default(1),
-  sort: z.string('Invalid format sort').optional().default('createdAt'),
-  order: z
-    .enum(['asc', 'desc'], 'Invalid format order')
-    .optional()
-    .default('desc'),
 });
-
-export const updateDailyTasksValidation = createDailyTasksValidation.partial();

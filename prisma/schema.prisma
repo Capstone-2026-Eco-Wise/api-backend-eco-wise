@@ -19,6 +19,12 @@ enum LABEL_CLASSIFICATION {
   bukan_sampah
 }
 
+enum FAQ_CATEGORY {
+  point
+  system
+  scan
+}
+
 model Users {
   id         String    @id @default(uuid()) @db.Uuid
   fullName   String    @map("full_name") @db.VarChar(100)
@@ -31,8 +37,28 @@ model Users {
 
   ecoPoints     ecoPoints?
   scanHistories scanHistory[]
+  faqsCreated   faqs[]        @relation("FaqCreator")
+  faqsEdited    faqs[]        @relation("FaqEditor")
 
   @@map("users")
+}
+
+model faqs {
+  id          String   @id @default(uuid()) @db.Uuid
+  question    String   @db.VarChar(255)
+  answer      String   @db.Text
+  category    String   @db.VarChar(100)
+  orderNumber Int      @default(0) @map("order_number")
+  isActive    Boolean  @default(false) @map("is_active")
+  createdBy   String?  @map("created_by") @db.Uuid
+  updatedBy   String?  @map("updated_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp
+
+  creator Users? @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  editor  Users? @relation("FaqEditor", fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@map("faqs")
 }
 
 model wasteCategories {
