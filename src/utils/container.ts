@@ -54,10 +54,7 @@ const scanHistoryService = new ScanHistoryService(
   wasteCategoriesRepository,
   cacheService,
 );
-const dailyTasksService = new DailyTasksService(
-  dailyTasksRepository,
-  cacheService,
-);
+const dailyTasksService = new DailyTasksService(dailyTasksRepository);
 
 export const container = {
   cacheService,
