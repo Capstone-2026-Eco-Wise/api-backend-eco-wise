@@ -1,5 +1,5 @@
 import z from 'zod';
-import { queryValidation } from '../../validations/query-validation';
+import { queryValidation } from '../../validations/query-validation.ts';
 
 export const createFAQValidation = z.object({
   question: z.string().min(1, 'Question is required'),

@@ -1,7 +1,7 @@
 import app from './app.ts';
-import { env } from './utils/env.ts';
-import { logger } from './infrastructure/logger/logger.ts';
 import RedisClient from './infrastructure/cache/redis-client.ts';
+import { logger } from './infrastructure/logger/logger.ts';
+import { env } from './utils/env.ts';
 
 const startServer = async () => {
   try {

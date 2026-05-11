@@ -100,5 +100,6 @@ Thumbs.db
 # ======================
 # DOCUMENTATION
 # ======================
-audit.md
-plan.md
+*.md
+!README.md
+!docker.md

@@ -13,6 +13,38 @@ services:
     mem_reservation: 128m
     cpus: 0.5
     command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru
+    networks:
+      - eco_wise_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: .
+    container_name: eco_wise_api
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - PORT=3000
+      - HOST=0.0.0.0
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - eco_wise_network
+    volumes:
+      - ./src:/app/src
 
 volumes:
   redis_data:
+
+networks:
+  eco_wise_network:
+    driver: bridge
