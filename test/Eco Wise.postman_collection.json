@@ -1,0 +1,3411 @@
+{
+  "info": {
+    "_postman_id": "1661447a-d53d-4372-b1d5-5214d526b845",
+    "name": "Eco Wise",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45932465"
+  },
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Check Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "[VALID] User Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Extract access_token from response and store in environment",
+                  "const response = pm.response.json();",
+                  "const accessToken = response.data.session.access_token;",
+                  "pm.environment.set(\"access_token\", accessToken);",
+                  "",
+                  "// Test: Status code is 201",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains session object",
+                  "pm.test(\"Data contains session object\", function () {",
+                  "    pm.expect(response.data).to.have.property(\"session\").that.is.an(\"object\");",
+                  "});",
+                  "",
+                  "// Test: Session contains access_token",
+                  "pm.test(\"Session contains access_token\", function () {",
+                  "    pm.expect(response.data.session).to.have.property(\"access_token\").that.is.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Access token is stored in environment variable",
+                  "pm.test(\"Access token is stored in environment variable\", function () {",
+                  "    pm.expect(pm.environment.get(\"access_token\")).to.not.be.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const requestBody = JSON.parse(pm.request.body.raw);\r",
+                  "const emailBodyUser = requestBody.email;\r",
+                  "const passwordBodyUser = requestBody.password;\r",
+                  "\r",
+                  "pm.environment.set(\"email_sign_up_user\", emailBodyUser)\r",
+                  "pm.environment.set(\"password_sign_up_user\", passwordBodyUser)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"iibibrahim@gmail.com\",\r\n    \"password\": \"@admin123\",\r\n    \"fullName\": \"Iib Ibrahim\",\r\n    \"username\": \"ibrhm\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/auth/sign-up",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "auth",
+                "sign-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Sign Up Already Registered",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 422",
+                  "pm.test(\"Status code is 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Message is \"User already registered\"",
+                  "pm.test(\"Message is 'User already registered'\", function () {",
+                  "    pm.expect(response.message).to.eql(\"User already registered\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\",\r\n    \"full_name\": \"Iib Ibrahim\",\r\n    \"username\": \"ibrhm\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-up",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Sign Up Bad Payload Email Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 400",
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Message contains email validation error",
+                  "pm.test(\"Message contains email validation error\", function () {",
+                  "    pm.expect(response.message).to.eql(\"email: Invalid email address\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"@ibrhm123\",\r\n    \"full_name\": \"Iib Ibrahim\",\r\n    \"username\": \"ibrhm\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-up",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Sign Up Bad Payload Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 400",
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Message contains password validation errors",
+                  "pm.test(\"Message contains password validation errors\", function () {",
+                  "    const expectedMessage = \"password: Password must be at least 8 characters, password: Password must contain at least one letter, password: Password must contain at least one number, password: Password must contain at least one special character\";",
+                  "    pm.expect(response.message).to.eql(expectedMessage);",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"iibibrahim@gmail.com\",\r\n    \"password\": \"\",\r\n    \"full_name\": \"Iib Ibrahim\",\r\n    \"username\": \"ibrhm\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-up",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Extract access_token from response and store in environment",
+                  "const response = pm.response.json();",
+                  "const accessToken = response.data.access_token;",
+                  "pm.environment.set(\"access_token\", accessToken);",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains access_token",
+                  "pm.test(\"Data contains access_token\", function () {",
+                  "    pm.expect(response.data).to.have.property(\"access_token\").that.is.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Access token is stored in environment variable",
+                  "pm.test(\"Access token is stored in environment variable\", function () {",
+                  "    pm.expect(pm.environment.get(\"access_token\")).to.not.be.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}\r\n// {\r\n//     \"email\": \"iibibrahim2201@gmail.com\",\r\n//     \"password\": \"@ibrhm123\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Sign Bad Payload Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 400",
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"@iabsdkasd12\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] User Session",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Get access_token from environment and set to header\r",
+                  "const accessToken = pm.environment.get(\"access_token\");\r",
+                  "pm.request.headers.add({ key: \"Authorization\", value: `Bearer ${accessToken}` });\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains complete user object",
+                  "pm.test(\"Data contains complete user object\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "    pm.expect(response.data).to.have.property(\"id\");",
+                  "    pm.expect(response.data).to.have.property(\"fullName\");",
+                  "    pm.expect(response.data).to.have.property(\"username\");",
+                  "    pm.expect(response.data).to.have.property(\"email\");",
+                  "    pm.expect(response.data).to.have.property(\"role\");",
+                  "    pm.expect(response.data).to.have.property(\"avatar_url\");",
+                  "    pm.expect(response.data).to.have.property(\"created_at\");",
+                  "    pm.expect(response.data).to.have.property(\"updated_at\");",
+                  "});",
+                  "",
+                  "// Test: Data types are correct",
+                  "pm.test(\"Data types are correct\", function () {",
+                  "    pm.expect(response.data.id).to.be.a(\"string\");   ",
+                  "    pm.expect(response.data.fullName).to.be.a(\"string\");",
+                  "    pm.expect(response.data.username).to.be.a(\"string\");",
+                  "    pm.expect(response.data.email).to.be.a(\"string\");",
+                  "    pm.expect(response.data.role).to.be.a(\"string\");",
+                  "    pm.expect(response.data.avatar_url === null || typeof response.data.avatar_url === \"string\").to.be.true;",
+                  "    pm.expect(response.data.created_at).to.be.a(\"string\");",
+                  "    pm.expect(response.data.updated_at).to.be.a(\"string\");",
+                  "});",
+                  "",
+                  "// Test: Email format is valid",
+                  "pm.test(\"Email format is valid\", function () {",
+                  "    let emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;",
+                  "    pm.expect(response.data.email).to.match(emailRegex);",
+                  "});",
+                  "",
+                  "// Test: Role is valid",
+                  "pm.test(\"Role is user or admin\", function () {",
+                  "    pm.expect([\"user\", \"admin\"]).to.include(response.data.role);",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/me",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Session Not Authentication",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 401",
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Message is \"Unauthorized. Please log in.\"",
+                  "pm.test(\"Message is 'Unauthorized. Please log in.'\", function () {",
+                  "    pm.expect(response.message).to.eql(\"Unauthorized. Please log in.\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/me",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] User Sign Out",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-out",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-out"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] User Sign Out Not Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 401",
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Message is \"Unauthorized. Please log in.\"",
+                  "pm.test(\"Message is 'Unauthorized. Please log in.'\", function () {",
+                  "    pm.expect(response.message).to.eql(\"Unauthorized. Please log in.\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-out",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-out"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Waste Categories",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "const accessToken = response.data.access_token;",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Create Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "const dataWasteCategory = response.data;",
+                  "",
+                  "pm.environment.set('id_waste_category_success', dataWasteCategory.id);",
+                  "pm.environment.set('id_waste_category_bad', 'xxx');",
+                  "pm.environment.set('id_waste_category_not_found', '9264f7b0-ee3b-469f-a005-321b7b4e2d91');",
+                  "",
+                  "// Test: Status code is 201",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains waste category object with id",
+                  "pm.test(\"Data contains waste category with id\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "    pm.expect(response.data).to.have.property(\"id\").that.is.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Waste category ID is stored in environment variable",
+                  "pm.test(\"Waste category ID is stored in environment variable\", function () {",
+                  "    pm.expect(pm.environment.get(\"id_waste_category_success\")).to.not.be.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const codes = ['organik', 'anorganik', 'b3', 'bukan sampah'];\r",
+                  "const randomCode = codes[Math.floor(Math.random() * codes.length)];\r",
+                  "\r",
+                  "const payloadSuccess = {\r",
+                  "    categoryCode: `${randomCode} - ${Date.now()}`,\r",
+                  "    categoryName: `Sampah - ${randomCode.toUpperCase()}`,\r",
+                  "    description: `Auto generated ${randomCode}`,\r",
+                  "    handlingTips: `Auto tips ${randomCode}`,\r",
+                  "    colorHex: \"#\" + Math.floor(Math.random() * 16777215).toString(16),\r",
+                  "    pointsReward: Math.floor(Math.random() * 50 + 1),\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.set('payload_waste_category_success', JSON.stringify(payloadSuccess))\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{{payload_waste_category_success}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/create",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] Create Waste Categories Bad Payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});\r",
+                  "",
+                  "",
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "})",
+                  "",
+                  "pm.test('Response has JSON content type', function () {",
+                  "    pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8');",
+                  "})",
+                  "",
+                  "pm.test('Response body has correct structure', function () {",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response).to.have.property('data');",
+                  "})",
+                  "",
+                  "pm.test('Message field is a string and is not empty', function () {",
+                  "    pm.expect(response.message).to.be.a('string').and.not.empty;",
+                  "})",
+                  "",
+                  "pm.test('Response time is within acceptable range', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "})"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const payloadBad =  {\r",
+                  "    categoryCode: 12,\r",
+                  "    description: `Auto generated`,\r",
+                  "    handlingTips: `Auto tips`,\r",
+                  "    colorHex: \"#\" + Math.floor(Math.random() * 16777215).toString(16),\r",
+                  "    pointsReward: -2\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.set('payload_waste_category_bad', JSON.stringify(payloadBad))"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{{payload_waste_category_bad}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/create",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] Role Base Access Control Not Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {\r",
+                  "    pm.response.to.have.status(403);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});",
+                  "",
+                  "pm.test('Status code is 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "})",
+                  "",
+                  "pm.test('Response has JSON content type', function () {",
+                  "    pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8');",
+                  "})",
+                  "",
+                  "pm.test('Response body has correct structure', function () {",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response).to.have.property('data');",
+                  "})",
+                  "",
+                  "pm.test('Message field is a string and is not empty', function () {",
+                  "    pm.expect(response.message).to.be.a('string').and.not.empty;",
+                  "})",
+                  "",
+                  "pm.test('Response time is within acceptable range', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "})"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{{payload_waste_category_bad}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/create",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get All Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data is an array",
+                  "pm.test(\"Data is an array\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Test: X-Data-Source header is database",
+                  "pm.test(\"X-Data-Source header is database\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"X-Data-Source\")).to.eql(\"database\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get All Waste Categories From Cache",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data is an array",
+                  "pm.test(\"Data is an array\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Test: X-Data-Source header is cache",
+                  "pm.test(\"X-Data-Source header is cache\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"X-Data-Source\")).to.eql(\"cache\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get Waste Categories By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data is an object with id",
+                  "pm.test(\"Data contains waste category object with id\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "    pm.expect(response.data).to.have.property(\"id\").that.is.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/{{id_waste_category_success}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "{{id_waste_category_success}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] Invalid ID Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});\r",
+                  "",
+                  "",
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "})",
+                  "",
+                  "pm.test('Response has JSON content type', function () {",
+                  "    pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8');",
+                  "})",
+                  "",
+                  "pm.test('Response body has correct structure', function () {",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response).to.have.property('data');",
+                  "})",
+                  "",
+                  "pm.test('Message field is a string and is not empty', function () {",
+                  "    pm.expect(response.message).to.be.a('string').and.not.empty;",
+                  "})",
+                  "",
+                  "pm.test('Response time is within acceptable range', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "})"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/{{id_waste_category_bad}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "{{id_waste_category_bad}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] Not Found ID Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});\r",
+                  "",
+                  "",
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "})",
+                  "",
+                  "pm.test('Response has JSON content type', function () {",
+                  "    pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8');",
+                  "})",
+                  "",
+                  "pm.test('Response body has correct structure', function () {",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response).to.have.property('data');",
+                  "})",
+                  "",
+                  "pm.test('Message field is a string and is not empty', function () {",
+                  "    pm.expect(response.message).to.be.a('string').and.not.empty;",
+                  "})",
+                  "",
+                  "pm.test('Response time is within acceptable range', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "})"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/{{id_waste_category_not_found}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "{{id_waste_category_not_found}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Update Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data is an object",
+                  "pm.test(\"Data contains updated waste category object\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\": \"Category name [update] {{id_waste_category_success}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/update/{{id_waste_category_success}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "update",
+                "{{id_waste_category_success}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[ERROR] Update Waste Categories Bad Payload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});\r",
+                  "",
+                  "",
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "})",
+                  "",
+                  "pm.test('Response has JSON content type', function () {",
+                  "    pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8');",
+                  "})",
+                  "",
+                  "pm.test('Response body has correct structure', function () {",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response).to.have.property('data');",
+                  "})",
+                  "",
+                  "pm.test('Message field is a string and is not empty', function () {",
+                  "    pm.expect(response.message).to.be.a('string').and.not.empty;",
+                  "})",
+                  "",
+                  "pm.test('Response time is within acceptable range', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "})"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\": \"Category name [update] {{id_waste_category_success}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/update/{{id_waste_category_success}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "update",
+                "{{id_waste_category_success}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Delete Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/delete/{{id_waste_category_success}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "delete",
+                "{{id_waste_category_success}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Eco Points",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()\r",
+                  "const accessToken = response.data.access_token\r",
+                  "\r",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get Info Streak User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let response = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code harus 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response memiliki message dan data\", function () {\r",
+                  "    pm.expect(response).to.have.property(\"message\");\r",
+                  "    pm.expect(response).to.have.property(\"data\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/eco-points/streak",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "eco-points",
+                "streak"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[TEST] Update Points Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"pointUpdate\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/eco-points/point",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "eco-points",
+                "point"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Upload File",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()\r",
+                  "const accessToken = response.data.access_token\r",
+                  "\r",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Update Avatar User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"message\");",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.be.a(\"string\").and.to.not.be.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Data field is not null\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.not.be.null;",
+                  "});",
+                  "",
+                  "pm.test(\"Data contains avatar URL\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property(\"avatar_url\");",
+                  "    pm.expect(jsonData.data.avatar_url).to.be.a(\"string\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "37602606-97ba-455c-9bca-1d2fa34a66c0",
+                  "src": "postman-cloud:///1f077849-6dd0-4160-8b41-b91d1f0debd6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/avatar",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Upload Not Image",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"message\");",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "pm.test(\"Error message is exactly 'Only JPG, JPEG, PNG files are allowed'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Only JPG, JPEG, PNG files are allowed\");",
+                  "});",
+                  "",
+                  "pm.test(\"Data field is null\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.null;",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "37602606-97ba-455c-9bca-1d2fa34a66c0",
+                  "src": "postman-cloud:///1f06a316-023b-4520-8744-b74fd40530aa"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/avatar",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scan History",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()\r",
+                  "const accessToken = response.data.access_token\r",
+                  "\r",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Scan Sampah",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "70bf74d8-ce5c-4ecc-ab26-9244d52e1512",
+                  "src": "/C:/Users/Ibrhm/Iib Ibrahim/Dokumen/File Kuliah/Semester 5/Kecerdasan Buatan/Dataset/banana/valid/overripe/musa-acuminata-mold-e5da22c8-1d0a-11ec-a85a-d8c4975e38aa_jpg.rf.1f1e178ac39247706cc8f5c0abcc948c.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/scan-history/scan",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "scan-history",
+                "scan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get History Scan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/scan-history/",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "scan-history",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Daily Tasks",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json()\r",
+                  "const accessToken = response.data.access_token\r",
+                  "\r",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{emailBodySignUpUser}}\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/users/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "users",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[SETUP] Create Waste Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "const dataWasteCategory = response.data;",
+                  "",
+                  "pm.environment.set('id_waste_category_for_daily_tasks', dataWasteCategory.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const codes = ['organik', 'anorganik', 'b3', 'bukan sampah'];\r",
+                  "const randomCode = codes[Math.floor(Math.random() * codes.length)];\r",
+                  "\r",
+                  "const payloadSuccess = {\r",
+                  "    categoryCode: `${randomCode} - ${Date.now()}`,\r",
+                  "    categoryName: `Sampah - ${randomCode.toUpperCase()}`,\r",
+                  "    description: `Auto generated ${randomCode}`,\r",
+                  "    handlingTips: `Auto tips ${randomCode}`,\r",
+                  "    colorHex: \"#\" + Math.floor(Math.random() * 16777215).toString(16),\r",
+                  "    pointsReward: Math.floor(Math.random() * 50 + 1),\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryCode\": \"{{$randomWord}} - {{$timestamp}}\",\r\n    \"categoryName\": \"Sampah - {{$randomWord}}\",\r\n    \"description\": \"Auto generated {{$randomWord}}\",\r\n    \"handlingTips\": \"Auto tips {{$randomWord}}\",\r\n    \"colorHex\": \"#{{$randomHexColor}}\",\r\n    \"pointsReward\": {{$randomInt}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/waste-categories/create",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "waste-categories",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Create Tasks Master",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "const idDailyTasks = response.data.id\r",
+                  "\r",
+                  "pm.environment.set('id_daily_tasks', idDailyTasks)"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryId\": \"{{id_waste_category_for_daily_tasks}}\",\r\n    \"taskName\": \"Scan Sampah 2\",\r\n    \"description\": \"test 3\",\r\n    \"pointReward\": {{$randomInt}},\r\n    \"isActive\": false,\r\n    \"activeDate\": \"2026-05-07\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/daily-tasks",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "daily-tasks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Create Tasks Master Copy",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/daily-tasks",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "daily-tasks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "active",
+                  "value": "true",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "scan sampah 1",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "taskName",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Update Daily Tasks",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    // \"categoryId\": \"{{id_waste_category_for_daily_tasks}}\",\r\n    \"categoryId\": \"89b992a0-9ad2-410a-8e25-3f745af86e26\"\r\n    // \"taskName\": \"Scan Sampah 3 update\",\r\n    // \"description\": \"test 3 update/\",\r\n    // \"pointReward\": {{$randomInt}},\r\n    // \"isActive\": true\r\n    // \"activeDate\": \"2026-05-07\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/daily-tasks/{{id_daily_tasks}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "daily-tasks",
+                "{{id_daily_tasks}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Update Daily Tasks Copy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/daily-tasks/{{id_daily_tasks}}",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "daily-tasks",
+                "{{id_daily_tasks}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Faqs",
+      "item": [
+        {
+          "name": "[SETUP] User Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "const accessToken = response.data.access_token;",
+                  "pm.environment.set(\"access_token\", accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"ecowiseadmin@gmail.com\",\r\n    \"password\": \"{{passwordBodySignUpUser}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/auth/sign-in",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "auth",
+                "sign-in"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Creating Faqs",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const faqs = [\r",
+                  "    {\r",
+                  "        question: \"Bagaimana cara melakukan scan yang benar?\",\r",
+                  "        answer:\r",
+                  "            \"Pastikan sampah berada di tempat dengan pencahayaan cukup dan berada tepat di tengah bingkai kamera.\",\r",
+                  "        category: \"Scan AI\",\r",
+                  "        orderNumber: 1,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Mengapa hasil deteksi tidak sesuai?\",\r",
+                  "        answer:\r",
+                  "            \"Model AI kami terus belajar. Pastikan gambar tidak blur. Jika hasil tidak sesuai, hal ini bisa terjadi karena variasi bentuk sampah yang belum masuk dalam dataset kami.\",\r",
+                  "        category: \"Scan AI\",\r",
+                  "        orderNumber: 2,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Apa itu Eco-Points?\",\r",
+                  "        answer:\r",
+                  "            \"Eco-Points adalah poin yang didapat dari scan sampah dan penyelesaian misi harian.\",\r",
+                  "        category: \"Poin & Hadiah\",\r",
+                  "        orderNumber: 1,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Kenapa poin saya tidak bertambah?\",\r",
+                  "        answer:\r",
+                  "            \"Pastikan koneksi internet stabil saat melakukan scan. Poin hanya diberikan jika hasil klasifikasi masuk dalam kategori sampah yang valid dan kamu belum melewati batas limit harian.\",\r",
+                  "        category: \"Poin & Hadiah\",\r",
+                  "        orderNumber: 2,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Bagaimana cara menyelesaikan misi?\",\r",
+                  "        answer:\r",
+                  "            \"Buka halaman 'Daily Tasks', lihat tugas apa yang aktif hari ini (misal: Scan 1 Sampah Plastik), lalu lakukan scan sampah yang sesuai dengan kategori tersebut.\",\r",
+                  "        category: \"Misi Harian\",\r",
+                  "        orderNumber: 1,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Apa itu Streak?\",\r",
+                  "        answer:\r",
+                  "            \"Streak adalah jumlah hari berturut-turut kamu aktif melakukan scan atau misi. Jika kamu melewatkan satu hari saja tanpa aktivitas, streak akan kembali ke angka 0.\",\r",
+                  "        category: \"Misi Harian\",\r",
+                  "        orderNumber: 2,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "    {\r",
+                  "        question: \"Apa tujuan dari aplikasi Eco-Wise?\",\r",
+                  "        answer:\r",
+                  "            \"Eco-Wise bertujuan untuk meningkatkan kesadaran masyarakat dalam memilah sampah secara cerdas menggunakan teknologi AI demi lingkungan yang lebih bersih.\",\r",
+                  "        category: \"Umum\",\r",
+                  "        orderNumber: 2,\r",
+                  "        isActive: true,\r",
+                  "    },\r",
+                  "];\r",
+                  "\r",
+                  "const index = pm.info.iteration;\r",
+                  "\r",
+                  "console.log(index)\r",
+                  "\r",
+                  "pm.variables.set('faq', JSON.stringify(faqs[index]));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 201",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains FAQ object with id",
+                  "pm.test(\"Data contains FAQ object with id\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "    pm.expect(response.data).to.have.property(\"id\").that.is.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"question\": \"Bagaimana cara melakukan scan yang benar?\",\r\n    \"answer\": \"Pastikan sampah berada di tempat dengan pencahayaan cukup dan berada tepat di tengah bingkai kamera.\",\r\n    \"category\": \"Scan AI\",\r\n    \"orderNumber\": 1,\r\n    \"isActive\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/faqs",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "faqs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get FAQs Public",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data is an array",
+                  "pm.test(\"Data is an array\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/faqs/public",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "faqs",
+                "public"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Get FAQs Creator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "// Test: Status code is 200\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// Test: Response has JSON content type\r",
+                  "pm.test(\"Response has JSON content type\", function () {\r",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");\r",
+                  "});\r",
+                  "\r",
+                  "// Test: Response body has correct structure\r",
+                  "pm.test(\"Response body has correct structure\", function () {\r",
+                  "    pm.expect(response).to.have.property(\"message\");\r",
+                  "    pm.expect(response).to.have.property(\"data\");\r",
+                  "});\r",
+                  "\r",
+                  "// Test: Message field is a string and is not empty\r",
+                  "pm.test(\"Message field is a string and is not empty\", function () {\r",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;\r",
+                  "});\r",
+                  "\r",
+                  "// Test: Data is an array\r",
+                  "pm.test(\"Data is an array\", function () {\r",
+                  "    pm.expect(response.data).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "// Test: Response time is within acceptable range\r",
+                  "pm.test(\"Response time is within acceptable range\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/faqs/creator",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "faqs",
+                "creator"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Update FAQ By Creator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Data contains updated FAQ object",
+                  "pm.test(\"Data contains updated FAQ object\", function () {",
+                  "    pm.expect(response.data).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"question\": \"Ini Dari Admin Eco Wise\",\r\n    \"answer\": \"Jawaban dari admin Eco Wise\",\r\n    \"isActive\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/faqs/f72d323e-d949-44e2-a17e-a4219d470dc7",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "faqs",
+                "f72d323e-d949-44e2-a17e-a4219d470dc7"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[VALID] Delete FAQ By Creator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "// Test: Status code is 200",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Response has JSON content type",
+                  "pm.test(\"Response has JSON content type\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\", \"application/json; charset=utf-8\");",
+                  "});",
+                  "",
+                  "// Test: Response body has correct structure",
+                  "pm.test(\"Response body has correct structure\", function () {",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "});",
+                  "",
+                  "// Test: Message field is a string and is not empty",
+                  "pm.test(\"Message field is a string and is not empty\", function () {",
+                  "    pm.expect(response.message).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "// Test: Response time is within acceptable range",
+                  "pm.test(\"Response time is within acceptable range\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://{{HOST}}:{{PORT}}/api/faqs/:id",
+              "protocol": "http",
+              "host": [
+                "{{HOST}}"
+              ],
+              "port": "{{PORT}}",
+              "path": [
+                "api",
+                "faqs",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "e35f11cb-9b6e-44b7-9171-056f72c8281b"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
