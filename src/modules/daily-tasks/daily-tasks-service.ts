@@ -3,6 +3,7 @@ import { logger } from '../../infrastructure/logger/logger.ts';
 import type DailyTasksRepository from './daily-tasks-repository.ts';
 import type {
   CreateDailyTasksType,
+  IdDailyTasksType,
   QueryDailyTasksType,
   UpdateDailyTasksType,
 } from './daily-tasks-type.ts';
@@ -85,6 +86,30 @@ export default class DailyTasksService {
     }
   };
 
+  getDailyTaskById = async ({ id }: IdDailyTasksType) => {
+    try {
+      logger.info(`${this.serviceName}: Retrieving daily task with ID: ${id}`);
+
+      const dailyTasks = await this.dailyTasksRepository.getTaskById({ id });
+
+      if (!dailyTasks) {
+        logger.error(
+          `${this.serviceName}: Failed to retrieve daily task`,
+          dailyTasks,
+        );
+        throw ErrorFactory.notFoundError('Daily task not found');
+      }
+
+      logger.info(
+        `${this.serviceName}: Successfully retrieved daily task with ID: ${dailyTasks.id}`,
+      );
+
+      return dailyTasks;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
   updateDailyTasks = async ({
     id,
     categoryId,
@@ -129,7 +154,7 @@ export default class DailyTasksService {
     try {
       logger.info(`${this.serviceName}: Deleting daily tasks with ID: ${id}`);
 
-      const dailyTasks = await this.dailyTasksRepository.deleteTask(id);
+      const dailyTasks = await this.dailyTasksRepository.deleteTask({ id });
 
       if (!dailyTasks) {
         logger.error(

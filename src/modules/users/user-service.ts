@@ -6,7 +6,12 @@ import { logger } from '../../infrastructure/logger/logger.ts';
 import type StorageService from '../../services/storage-service.ts';
 import { storageConfig } from '../../services/storage-service.ts';
 import type UserRepository from './user-repository.ts';
-import type { UserUpdateAvatarType } from './user-type.ts';
+import type {
+  QueryParamUserType,
+  UpdateProfileUserType,
+  UpdateRoleUserType,
+  UserUpdateAvatarType,
+} from './user-type.ts';
 
 export default class UserService {
   private userRepository: UserRepository;
@@ -40,6 +45,38 @@ export default class UserService {
       logger.info(`${this.serviceName}: Get user for ${user.id}`);
 
       return { user, fromCache: false };
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+    }
+  };
+
+  getAllUsers = async ({
+    id,
+    limit,
+    page,
+    role,
+    search,
+  }: QueryParamUserType) => {
+    try {
+      logger.info(
+        `${this.serviceName}: Getting all users for ${role}, ${search}`,
+      );
+
+      const users = await this.userRepository.getAllUsers({
+        id,
+        limit,
+        page,
+        role,
+        search,
+      });
+
+      if (users.data.length === 0) {
+        throw ErrorFactory.notFoundError('Users not found');
+      }
+
+      logger.info(`${this.serviceName}: Get all users successfully`);
+
+      return users;
     } catch (error) {
       ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
@@ -91,6 +128,58 @@ export default class UserService {
       }
 
       ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+    }
+  };
+
+  updateProfile = async ({ id, fullName }: UpdateProfileUserType) => {
+    try {
+      logger.info(`${this.serviceName}: user update profile ${id}`);
+
+      const updateProfile = await this.userRepository.updateProfileUser({
+        id,
+        fullName,
+      });
+
+      if (!updateProfile) {
+        throw ErrorFactory.clientError('Update profile failed');
+      }
+
+      await this.cache.del(cacheKey.userSession(id));
+
+      return updateProfile;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  updateRoleUser = async ({ id, role }: UpdateRoleUserType) => {
+    try {
+      logger.info(`${this.serviceName}: user update role ${id}`);
+
+      const user = await this.userRepository.getUserById(id);
+
+      if (!user) {
+        throw ErrorFactory.notFoundError('User not found');
+      }
+
+      if (user.role === role) {
+        throw ErrorFactory.clientError(`User already has this role`);
+      }
+
+      const updateRole = await this.userRepository.updateRoleUser({
+        id,
+        role,
+      });
+
+      if (!updateRole) {
+        throw ErrorFactory.clientError('Update role failed');
+      }
+
+      await this.cache.del(cacheKey.userSession(id));
+
+      return updateRole;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

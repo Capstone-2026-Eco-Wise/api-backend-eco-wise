@@ -13,3 +13,18 @@ export type AuthSignUpType = Pick<
 >;
 
 export type AuthSignInType = Pick<AuthPayload, 'email' | 'password'>;
+
+export type UpdatePasswordType = {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type AuthUpdatePasswordType = Pick<AuthPayload, 'password'> & {
+  userId: string;
+};
+
+export type AuthServiceUpdatePasswordType = UpdatePasswordType & {
+  userId: string;
+  email: string;
+};

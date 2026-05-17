@@ -29,12 +29,12 @@ Endpoint untuk menambahkan kategori sampah baru. Endpoint ini dibatasi hanya unt
   "categoryName": "Anorganik",
   "description": "Sampah sulit terurai",
   "handlingTips": "Pisahkan untuk daur ulang",
-  "colorHex": "#2196F3",
+  "colorHex": "rgb(33, 150, 243)", // Bisa Hex (#RGB/#RRGGBB) atau rgb(r, g, b)
   "pointsReward": 10
 }
 ```
 
-_(Catatan: `categoryCode`, `categoryName`, dan `pointsReward` wajib diisi. Kolom lainnya opsional)._
+_(Catatan: `categoryCode`, `categoryName`, dan `pointsReward` wajib diisi. Kolom lainnya opsional. `categoryCode` otomatis di-format menjadi `HURUF_BESAR_DENGAN_UNDERSCORE`)._
 
 ### Success Response (201 Created)
 

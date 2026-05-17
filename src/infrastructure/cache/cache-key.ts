@@ -6,4 +6,5 @@ export const cacheKey = {
   scanHistory: (key: string) => `scan-history:user:${key}`,
   faqsPublic: () => `faqs:public`,
   faqsByCreator: (key: string) => `faqs:creator:${key}`,
+  dashboardStats: () => `dashboard:stats`,
 };

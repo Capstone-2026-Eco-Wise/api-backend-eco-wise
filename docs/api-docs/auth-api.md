@@ -110,3 +110,35 @@ Endpoint untuk mengeluarkan user dan menghapus sesinya di sistem Supabase.
   "data": null
 }
 ```
+
+---
+
+## 4. Update Password
+
+Endpoint untuk memperbarui kata sandi pengguna yang sedang masuk. Secara otomatis akan menghapus sesi lama dan mengembalikan token sesi yang baru.
+
+**URL:** `/update-password`
+**Method:** `PUT`
+**Auth Required:** Yes
+**Rate Limit:** Maksimal 5 request per 15 menit per IP.
+
+### Request Body
+```json
+{
+  "oldPassword": "OldPassword123!",
+  "newPassword": "NewPassword123!",
+  "confirmPassword": "NewPassword123!"
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Password updated successfully",
+  "data": {
+    "access_token": "new-jwt-token",
+    "refresh_token": "new-jwt-refresh-token"
+  }
+}
+```

@@ -73,3 +73,106 @@ Endpoint untuk memperbarui foto profil (avatar) pengguna. Endpoint ini menerima 
   }
 }
 ```
+
+---
+
+## 3. Get All Users
+
+Endpoint untuk mengambil seluruh data pengguna. Mendukung pencarian dan paginasi.
+
+**URL:** `/`
+**Method:** `GET`
+**Auth Required:** Yes
+**Role Required:** Admin
+
+### Query Parameters
+- `page` (number, opsional)
+- `limit` (number, opsional)
+- `role` (string, opsional): Filter berdasarkan role (`admin` atau `user`)
+- `search` (string, opsional): Pencarian nama, email, atau username
+
+### Success Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Get all users successfully",
+  "data": {
+    "data": [
+      {
+        "id": "uuid",
+        "email": "user@example.com",
+        "fullName": "User Name",
+        "role": "user"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "totalData": 100,
+      "totalPage": 10
+    }
+  }
+}
+```
+
+---
+
+## 4. Update Profile User
+
+Endpoint untuk memperbarui data profil dasar pengguna.
+
+**URL:** `/me/profile`
+**Method:** `PATCH`
+**Auth Required:** Yes
+
+### Request Body
+```json
+{
+  "fullName": "John Doe Baru"
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Update profile user successfuly",
+  "data": {
+    "id": "uuid",
+    "fullName": "John Doe Baru"
+  }
+}
+```
+
+---
+
+## 5. Update Role User
+
+Endpoint untuk mengubah hak akses pengguna.
+
+**URL:** `/:id/role`
+**Method:** `PATCH`
+**Auth Required:** Yes
+**Role Required:** Admin
+
+### Parameters
+- `id` (path, string): UUID dari pengguna.
+
+### Request Body
+```json
+{
+  "role": "admin"
+}
+```
+
+### Success Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Update role user successfuly",
+  "data": {
+    "id": "uuid",
+    "role": "admin"
+  }
+}
+```

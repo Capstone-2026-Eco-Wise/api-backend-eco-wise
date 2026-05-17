@@ -4,7 +4,11 @@ import { authLimiter } from '../../middlewares/rate-limit-middleware.ts';
 import { validateSchema } from '../../middlewares/validation-middleware.ts';
 import { container } from '../../utils/container.ts';
 import AuthController from './auth-controller.ts';
-import { signInValidation, signUpValidation } from './auth-validation.ts';
+import {
+  signInValidation,
+  signUpValidation,
+  updatePasswordValidation,
+} from './auth-validation.ts';
 
 class AuthRoute {
   private authRoute: Router;
@@ -32,6 +36,13 @@ class AuthRoute {
       '/sign-out',
       authMiddleware,
       this.authController.logOut,
+    );
+    this.authRoute.put(
+      '/update-password',
+      authMiddleware,
+      authLimiter,
+      validateSchema(updatePasswordValidation),
+      this.authController.updatePassword,
     );
 
     return this.authRoute;

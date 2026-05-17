@@ -2,6 +2,7 @@ import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
 import type {
   CreateDailyTasksType,
+  IdDailyTasksType,
   QueryDailyTasksType,
   UpdateDailyTasksType,
 } from './daily-tasks-type.ts';
@@ -87,6 +88,14 @@ export default class DailyTasksRepository {
     };
   };
 
+  getTaskById = async ({ id }: IdDailyTasksType) => {
+    return await prisma.dailyTasks.findUnique({
+      where: {
+        id,
+      },
+    });
+  };
+
   updateTask = async ({
     id,
     categoryId,
@@ -111,7 +120,7 @@ export default class DailyTasksRepository {
     });
   };
 
-  deleteTask = async (id: string) => {
+  deleteTask = async ({ id }: IdDailyTasksType) => {
     return await prisma.dailyTasks.delete({
       where: {
         id,

@@ -9,6 +9,8 @@ import FaqsRepository from '../modules/faqs/faqs-repository.ts';
 import FaqsService from '../modules/faqs/faqs-service.ts';
 import ScanHistoryRepository from '../modules/scan-history/scan-history-repository.ts';
 import ScanHistoryService from '../modules/scan-history/scan-history-service.ts';
+import StatisticsRepository from '../modules/statistics/statistics-repository.ts';
+import StatisticsService from '../modules/statistics/statistics-service.ts';
 import UserRepository from '../modules/users/user-repository.ts';
 import UserService from '../modules/users/user-service.ts';
 import WasteCategoriesRepository from '../modules/waste-categories/waste-categories-repository.ts';
@@ -24,6 +26,7 @@ const wasteCategoriesRepository = new WasteCategoriesRepository();
 const ecoPointsRepository = new EcoPointsRepository();
 const scanHistoryRepository = new ScanHistoryRepository();
 const dailyTasksRepository = new DailyTasksRepository();
+const statisticsRepository = new StatisticsRepository();
 
 const cacheService = new CacheService();
 const storageService = new StorageService();
@@ -55,6 +58,7 @@ const scanHistoryService = new ScanHistoryService(
   cacheService,
 );
 const dailyTasksService = new DailyTasksService(dailyTasksRepository);
+const statisticsService = new StatisticsService(statisticsRepository, cacheService);
 
 export const container = {
   cacheService,
@@ -65,4 +69,5 @@ export const container = {
   wasteCategoriesService,
   scanHistoryService,
   dailyTasksService,
+  statisticsService,
 };

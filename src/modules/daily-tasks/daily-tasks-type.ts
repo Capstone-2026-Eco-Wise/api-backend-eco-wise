@@ -1,4 +1,5 @@
 type PayloadDailyTasksType = {
+  id?: string;
   categoryId?: string | null;
   taskName: string;
   description?: string | null;
@@ -22,3 +23,5 @@ export type QueryDailyTasksType = {
 export type UpdateDailyTasksType = Partial<PayloadDailyTasksType> & {
   id: string;
 };
+
+export type IdDailyTasksType = Required<Pick<PayloadDailyTasksType, 'id'>>;

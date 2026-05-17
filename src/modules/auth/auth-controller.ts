@@ -43,4 +43,27 @@ export default class AuthController {
 
     return ResponseServer.success(res, 200, message, null);
   };
+
+  updatePassword = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Session not found');
+    }
+
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    const { session } = await this.authService.updatePassword({
+      userId: req.user.id,
+      email: req.user.email,
+      oldPassword,
+      newPassword,
+      confirmPassword,
+    });
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Password updated successfully',
+      session,
+    );
+  };
 }

@@ -16,10 +16,10 @@ export const createWasteCategorySchema = z.object({
     .min(3, 'Handling tips must be at least 3 characters')
     .optional(),
   colorHex: z
-    .string('Color hex must be a string')
+    .string()
     .regex(
-      /^#([0-9A-Fa-f]{3}){1,2}$/,
-      'Invalid hexadecimal color format. Use format #RGB or #RRGGBB',
+      /^(#([0-9A-Fa-f]{3}){1,2}|rgb\(\s*(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\s*\))$/,
+      'Invalid color format',
     )
     .optional(),
   pointsReward: z

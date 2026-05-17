@@ -38,6 +38,19 @@ export default class DailyTasksController {
     );
   };
 
+  getById = async (req: Request, res: Response) => {
+    const dailyTasks = await this.dailyTasksService.getDailyTaskById({
+      id: req.params.id as string,
+    });
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Successfully retrieved daily tasks',
+      dailyTasks,
+    );
+  };
+
   update = async (req: Request, res: Response) => {
     const dailyTasks = await this.dailyTasksService.updateDailyTasks({
       id: req.params.id,

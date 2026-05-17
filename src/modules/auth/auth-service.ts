@@ -5,7 +5,11 @@ import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type EcoPointsService from '../eco-points/eco-points-service.ts';
 import type { default as AuthRepository } from './auth-repository.ts';
-import type { AuthSignInType, AuthSignUpType } from './auth-type.ts';
+import type {
+  AuthSignInType,
+  AuthSignUpType,
+  AuthServiceUpdatePasswordType,
+} from './auth-type.ts';
 
 export default class AuthService {
   private authRepository: AuthRepository;
@@ -94,6 +98,76 @@ export default class AuthService {
     }
   };
 
+  updatePassword = async ({
+    userId,
+    email,
+    oldPassword,
+    newPassword,
+    confirmPassword,
+  }: AuthServiceUpdatePasswordType) => {
+    try {
+      logger.info(`${this.serviceName}: Updating password for user ${userId}`);
+
+      if (oldPassword === newPassword) {
+        throw ErrorFactory.clientError(
+          'New password must be different from the old password',
+          400,
+        );
+      }
+
+      if (newPassword !== confirmPassword) {
+        throw ErrorFactory.clientError(
+          'New password and confirm password do not match',
+        );
+      }
+
+      const { error: errorAuthSignIn } = await this.authRepository.signIn({
+        email,
+        password: oldPassword,
+      });
+
+      if (errorAuthSignIn) {
+        throw ErrorFactory.clientError('Old password is incorrect', 400);
+      }
+
+      const { error: errorAuthUpdatePassword } =
+        await this.authRepository.updatePassword({
+          userId,
+          password: newPassword,
+        });
+
+      if (errorAuthUpdatePassword) {
+        throw ErrorFactory.clientError(
+          errorAuthUpdatePassword.message,
+          errorAuthUpdatePassword.status,
+        );
+      }
+
+      await this.cache.del(cacheKey.userSession(userId));
+
+      // Obtain a new session because updating password revokes the old token
+      const { data: newSession, error: newSessionError } =
+        await this.authRepository.signIn({
+          email,
+          password: newPassword,
+        });
+
+      if (newSessionError) {
+        throw ErrorFactory.clientError(
+          'Password updated, but failed to automatically log in. Please log in manually.',
+        );
+      }
+
+      logger.info(
+        `${this.serviceName}: Password updated successfully for user ${userId}`,
+      );
+
+      return newSession;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
   authSignOut = async (user: Users) => {
     try {
       logger.info(`${this.serviceName}: User sign out`);
@@ -109,10 +183,12 @@ export default class AuthService {
 
       // Clean up cache
       logger.info(`[CLEAN UP CACHE]: for user ${user.id}`);
-      await this.cache.del(cacheKey.userSession(user.id));
-      await this.cache.del(cacheKey.ecoPoints(user.id));
-      await this.cache.del(cacheKey.scanHistory(user.id));
-      await this.cache.del(cacheKey.faqsByCreator(user.id));
+      await Promise.all([
+        this.cache.del(cacheKey.userSession(user.id)),
+        this.cache.del(cacheKey.ecoPoints(user.id)),
+        this.cache.del(cacheKey.scanHistory(user.id)),
+        this.cache.del(cacheKey.faqsByCreator(user.id)),
+      ]);
 
       logger.info(`${this.serviceName}: User has been signed out`);
 

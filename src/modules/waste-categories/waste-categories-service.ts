@@ -35,7 +35,11 @@ export default class WasteCategoriesService {
         `${this.serviceName}: Creating waste category with category code ${categoryCode}`,
       );
 
-      const categoryCodeGenerate = categoryCode.trim().toUpperCase();
+      const categoryCodeGenerate = categoryCode
+        .split(' ')
+        .join('_')
+        .trim()
+        .toUpperCase();
 
       const resultCreate = await this.wasteCategoriesRepository.create({
         categoryCode: categoryCodeGenerate,

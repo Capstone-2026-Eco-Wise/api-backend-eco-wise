@@ -18,3 +18,9 @@ export const signInValidation = z.object({
   email: z.email('Invalid email address'),
   password: passwordSchema,
 });
+
+export const updatePasswordValidation = z.object({
+  oldPassword: passwordSchema,
+  newPassword: passwordSchema,
+  confirmPassword: passwordSchema,
+});

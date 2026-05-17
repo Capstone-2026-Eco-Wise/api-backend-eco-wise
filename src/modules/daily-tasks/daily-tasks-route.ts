@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { accessControlMiddleware } from '../../middlewares/access-control-middleware.ts';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import {
+  validateParams,
   validateQuery,
   validateSchema,
 } from '../../middlewares/validation-middleware.ts';
@@ -36,9 +37,14 @@ class DailyTasksRoute {
     this.dailyTasksRoute.get(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
       validateQuery(queryDailyTasksValidation),
       this.dailyTasksController.getAll,
+    );
+    this.dailyTasksRoute.get(
+      '/:id',
+      authMiddleware,
+      validateParams('id'),
+      this.dailyTasksController.getById,
     );
     this.dailyTasksRoute.put(
       '/:id',
