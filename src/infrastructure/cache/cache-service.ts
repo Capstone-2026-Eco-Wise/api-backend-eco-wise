@@ -16,17 +16,17 @@ export default class CacheService {
     const data = await this.redisClient.get(key);
 
     return data ? JSON.parse(data) : null;
-  }
+  };
 
   set = async (key: string, value: unknown, ttl: number = 3600) => {
     logger.info(`[cache] set key: ${key}, ttl: ${ttl}`);
 
     return await this.redisClient.set(key, JSON.stringify(value), { EX: ttl });
-  }
+  };
 
   del = async (key: string) => {
     logger.info(`[cache] del key: ${key}`);
 
     return await this.redisClient.del(key);
-  }
+  };
 }

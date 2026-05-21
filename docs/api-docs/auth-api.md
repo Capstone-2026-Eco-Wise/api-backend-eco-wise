@@ -2,7 +2,7 @@
 
 Base URL: `/api/auth`
 
-Semua endpoint untuk otentikasi. Hanya endpoint `DELETE /sign-out` yang membutuhkan Header Authentication.
+Semua endpoint digunakan untuk autentikasi user.
 
 ## Headers (Untuk endpoint terproteksi)
 
@@ -12,12 +12,14 @@ Authorization: Bearer <token>
 
 ---
 
-## 1. Register User (Sign Up)
+## 1. Register User
 
-Endpoint untuk mendaftarkan akun baru.
+Endpoint untuk mendaftarkan user baru.
 
 **URL:** `/sign-up`
 **Method:** `POST`
+**Auth Required:** No
+**Rate Limit:** 5 request per 15 menit per IP.
 
 ### Request Body
 ```json
@@ -41,7 +43,10 @@ Endpoint untuk mendaftarkan akun baru.
     },
     "ecoPoints": {
       "id": "uuid",
-      "totalPoints": 0
+      "totalPoints": 0,
+      "currentStreak": 0,
+      "longestStreak": 0,
+      "lastActiveDate": "2026-05-21T00:00:00.000Z"
     }
   }
 }
@@ -58,13 +63,14 @@ Endpoint untuk mendaftarkan akun baru.
 
 ---
 
-## 2. Login User (Sign In)
+## 2. Login User
 
-Endpoint untuk masuk dan mendapatkan token akses.
+Endpoint untuk login dan mendapatkan token akses.
 
 **URL:** `/sign-in`
 **Method:** `POST`
-**Rate Limit:** Maksimal 5 request per 15 menit per IP.
+**Auth Required:** No
+**Rate Limit:** 5 request per 15 menit per IP.
 
 ### Request Body
 ```json
@@ -94,9 +100,9 @@ Endpoint untuk masuk dan mendapatkan token akses.
 
 ---
 
-## 3. Logout User (Sign Out)
+## 3. Logout User
 
-Endpoint untuk mengeluarkan user dan menghapus sesinya di sistem Supabase.
+Endpoint untuk logout user dan menghapus sesi Supabase.
 
 **URL:** `/sign-out`
 **Method:** `DELETE`
@@ -111,16 +117,25 @@ Endpoint untuk mengeluarkan user dan menghapus sesinya di sistem Supabase.
 }
 ```
 
+### Error Response (401 Unauthorized)
+```json
+{
+  "status": 401,
+  "message": "Session not found",
+  "data": null
+}
+```
+
 ---
 
 ## 4. Update Password
 
-Endpoint untuk memperbarui kata sandi pengguna yang sedang masuk. Secara otomatis akan menghapus sesi lama dan mengembalikan token sesi yang baru.
+Endpoint untuk mengganti password user yang sedang login.
 
 **URL:** `/update-password`
 **Method:** `PUT`
 **Auth Required:** Yes
-**Rate Limit:** Maksimal 5 request per 15 menit per IP.
+**Rate Limit:** 5 request per 15 menit per IP.
 
 ### Request Body
 ```json
@@ -140,5 +155,14 @@ Endpoint untuk memperbarui kata sandi pengguna yang sedang masuk. Secara otomati
     "access_token": "new-jwt-token",
     "refresh_token": "new-jwt-refresh-token"
   }
+}
+```
+
+### Error Response (400 Bad Request)
+```json
+{
+  "status": 400,
+  "message": "Old password is incorrect",
+  "data": null
 }
 ```

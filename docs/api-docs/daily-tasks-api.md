@@ -2,8 +2,6 @@
 
 Base URL: `/api/daily-tasks`
 
-Beberapa endpoint membutuhkan Header Authentication dan Akses Khusus (Role: `admin`).
-
 ## Headers (Untuk endpoint terproteksi)
 
 ```http
@@ -14,7 +12,7 @@ Authorization: Bearer <token>
 
 ## 1. Create Daily Task
 
-Endpoint untuk membuat tugas harian (daily task) baru. Hanya dapat diakses oleh admin.
+Endpoint admin untuk membuat daily task.
 
 **URL:** `/`
 **Method:** `POST`
@@ -24,7 +22,7 @@ Endpoint untuk membuat tugas harian (daily task) baru. Hanya dapat diakses oleh 
 ### Request Body
 ```json
 {
-  "categoryId": "uuid (opsional)",
+  "categoryId": "uuid",
   "taskName": "Kumpulkan 10 Botol Plastik",
   "description": "Tugas mengumpulkan botol",
   "pointReward": 50,
@@ -56,27 +54,26 @@ Endpoint untuk membuat tugas harian (daily task) baru. Hanya dapat diakses oleh 
 
 ## 2. Get All Daily Tasks
 
-Endpoint untuk mengambil daftar tugas harian. Mendukung fitur query untuk filter, pencarian, dan paginasi.
+Endpoint untuk mengambil daftar daily task dengan filter dan pagination.
 
 **URL:** `/`
 **Method:** `GET`
 **Auth Required:** Yes
-**Role Required:** Admin
 
 ### Query Parameters
-- `category` (string, opsional): UUID kategori sampah.
-- `active` (boolean, opsional): `true` atau `false` untuk filter status aktif.
-- `search` (string, opsional): Kata kunci pencarian nama tugas.
-- `limit` (number, opsional): Jumlah data per halaman (default: 10).
-- `page` (number, opsional): Nomor halaman (default: 1).
-- `sort` (string, opsional): Kolom untuk pengurutan (default: `createdAt`).
-- `order` (string, opsional): `asc` atau `desc` (default: `desc`).
+- `page` (number, optional)
+- `limit` (number, optional)
+- `search` (string, optional)
+- `sort` (string, optional)
+- `order` (`asc` | `desc`, optional)
+- `category` (uuid, optional)
+- `active` (`true` | `false`, optional)
 
 ### Success Response (200 OK)
 ```json
 {
   "status": 200,
-  "message": "Successfully fetched daily tasks",
+  "message": "Successfully retrieved daily tasks",
   "data": {
     "data": [
       {
@@ -86,14 +83,18 @@ Endpoint untuk mengambil daftar tugas harian. Mendukung fitur query untuk filter
         "pointReward": 50,
         "isActive": true,
         "activeDate": "2026-05-09T00:00:00.000Z",
-        "createdAt": "2026-05-09T10:00:00.000Z"
+        "category": {
+          "id": "uuid",
+          "categoryName": "Anorganik",
+          "categoryCode": "ANORGANIK"
+        }
       }
     ],
-    "meta": {
+    "pagination": {
       "page": 1,
       "limit": 10,
       "totalData": 1,
-      "totalPages": 1
+      "totalPage": 1
     }
   }
 }
@@ -101,19 +102,48 @@ Endpoint untuk mengambil daftar tugas harian. Mendukung fitur query untuk filter
 
 ---
 
-## 3. Update Daily Task
+## 3. Get Daily Task By ID
 
-Endpoint untuk mengubah data tugas harian berdasarkan ID.
+Endpoint untuk mengambil detail daily task.
+
+**URL:** `/:id`
+**Method:** `GET`
+**Auth Required:** Yes
+
+### Path Parameter
+- `id`: UUID daily task.
+
+### Success Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Successfully retrieved daily tasks",
+  "data": {
+    "id": "uuid",
+    "taskName": "Kumpulkan 10 Botol Plastik",
+    "description": "Tugas mengumpulkan botol",
+    "pointReward": 50,
+    "isActive": true,
+    "activeDate": "2026-05-09T00:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 4. Update Daily Task
+
+Endpoint admin untuk mengubah daily task.
 
 **URL:** `/:id`
 **Method:** `PUT`
 **Auth Required:** Yes
 **Role Required:** Admin
 
-### Parameters
-- `id` (path, string): UUID dari tugas harian.
+### Path Parameter
+- `id`: UUID daily task.
 
-### Request Body (Semua opsional)
+### Request Body
 ```json
 {
   "taskName": "Kumpulkan 15 Botol Plastik",
@@ -126,7 +156,7 @@ Endpoint untuk mengubah data tugas harian berdasarkan ID.
 ```json
 {
   "status": 200,
-  "message": "Successfully updated daily task",
+  "message": "Successfully updated daily tasks",
   "data": {
     "id": "uuid",
     "taskName": "Kumpulkan 15 Botol Plastik",
@@ -142,23 +172,25 @@ Endpoint untuk mengubah data tugas harian berdasarkan ID.
 
 ---
 
-## 4. Delete Daily Task
+## 5. Delete Daily Task
 
-Endpoint untuk menghapus tugas harian.
+Endpoint admin untuk menghapus daily task.
 
 **URL:** `/:id`
 **Method:** `DELETE`
 **Auth Required:** Yes
 **Role Required:** Admin
 
-### Parameters
-- `id` (path, string): UUID dari tugas harian.
+### Path Parameter
+- `id`: UUID daily task.
 
 ### Success Response (200 OK)
 ```json
 {
   "status": 200,
-  "message": "Successfully deleted daily task",
-  "data": null
+  "message": "Successfully deleted daily tasks",
+  "data": {
+    "id": "uuid"
+  }
 }
 ```

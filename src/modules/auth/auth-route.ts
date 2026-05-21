@@ -23,6 +23,7 @@ class AuthRoute {
   routes = () => {
     this.authRoute.post(
       '/sign-up',
+      authLimiter,
       validateSchema(signUpValidation),
       this.authController.signUp,
     );

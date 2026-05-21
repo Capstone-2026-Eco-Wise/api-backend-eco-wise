@@ -2,9 +2,7 @@
 
 Base URL: `/api/scan-history`
 
-Semua endpoint membutuhkan Header Authentication.
-
-## Headers
+## Headers (Untuk endpoint terproteksi)
 
 ```http
 Authorization: Bearer <token>
@@ -12,17 +10,17 @@ Authorization: Bearer <token>
 
 ---
 
-## 1. Create Scan History (Predict)
+## 1. Scan Image
 
-Endpoint untuk melakukan prediksi jenis sampah dari gambar yang diunggah dan menyimpannya ke dalam riwayat scan. Endpoint ini memanggil service Machine Learning untuk memproses gambar.
+Endpoint untuk upload gambar dan menyimpan hasil prediksi ke history.
 
 **URL:** `/`
 **Method:** `POST`
 **Auth Required:** Yes
 **Content-Type:** `multipart/form-data`
 
-### Request Body (Form Data)
-- `image`: File gambar sampah yang ingin diprediksi.
+### Form Data
+- `image`: file gambar.
 
 ### Success Response (201 Created)
 ```json
@@ -34,17 +32,26 @@ Endpoint untuk melakukan prediksi jenis sampah dari gambar yang diunggah dan men
     "userId": "uuid",
     "categoryId": "uuid",
     "imageUrl": "https://...",
-    "predictionScore": 95.5,
-    "rawPredictions": "[{\"label\": \"Plastic\", \"score\": 0.955}]",
-    "scannedAt": "2026-05-09T10:00:00.000Z"
+    "confidenceScore": 0.955,
+    "rawPredictions": {
+      "organik": 0.05,
+      "non_organik": 0.9,
+      "b3": 0.03,
+      "bukan_sampah": 0.02
+    },
+    "pointEarned": 10,
+    "label": "non_organik",
+    "tips": "Pisahkan sampah non organik untuk daur ulang.",
+    "tokenUser": 4,
+    "latency": 1234
   }
 }
 ```
 
-### Error Response (401 Unauthorized)
+### Error Response (400 Bad Request)
 ```json
 {
-  "status": 401,
+  "status": 400,
   "message": "Image not found",
   "data": null
 }
@@ -54,7 +61,7 @@ Endpoint untuk melakukan prediksi jenis sampah dari gambar yang diunggah dan men
 
 ## 2. Get All Scan History
 
-Endpoint untuk mengambil seluruh daftar riwayat scan dari user yang sedang login. Mendukung sistem caching dengan Redis.
+Endpoint untuk mengambil riwayat scan user login.
 
 **URL:** `/`
 **Method:** `GET`
@@ -71,7 +78,8 @@ Endpoint untuk mengambil seluruh daftar riwayat scan dari user yang sedang login
       "userId": "uuid",
       "categoryId": "uuid",
       "imageUrl": "https://...",
-      "predictionScore": 95.5,
+      "confidenceScore": 0.955,
+      "pointEarned": 10,
       "scannedAt": "2026-05-09T10:00:00.000Z"
     }
   ]
@@ -82,14 +90,14 @@ Endpoint untuk mengambil seluruh daftar riwayat scan dari user yang sedang login
 
 ## 3. Get Scan History By ID
 
-Endpoint untuk mengambil detail riwayat scan spesifik milik user yang sedang login beserta informasi detail kategori sampahnya.
+Endpoint untuk mengambil detail history scan spesifik.
 
 **URL:** `/:id`
 **Method:** `GET`
 **Auth Required:** Yes
 
-### Parameters
-- `id` (path, string): UUID dari scan history.
+### Path Parameter
+- `id`: UUID scan history.
 
 ### Success Response (200 OK)
 ```json
@@ -101,8 +109,12 @@ Endpoint untuk mengambil detail riwayat scan spesifik milik user yang sedang log
     "userId": "uuid",
     "categoryId": "uuid",
     "imageUrl": "https://...",
-    "predictionScore": 95.5,
-    "rawPredictions": "[...]",
+    "confidenceScore": 0.955,
+    "rawPredictions": {
+      "organik": 0.05,
+      "non_organik": 0.9
+    },
+    "pointEarned": 10,
     "scannedAt": "2026-05-09T10:00:00.000Z",
     "category": {
       "categoryCode": "PLASTIC",

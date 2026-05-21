@@ -2,8 +2,6 @@
 
 Base URL: `/api/waste-categories`
 
-Beberapa endpoint membutuhkan Header Authentication dan Akses Khusus (Role: `admin`).
-
 ## Headers (Untuk endpoint terproteksi)
 
 ```http
@@ -14,7 +12,7 @@ Authorization: Bearer <token>
 
 ## 1. Create Waste Category
 
-Endpoint untuk menambahkan kategori sampah baru. Endpoint ini dibatasi hanya untuk user dengan _role_ admin.
+Endpoint admin untuk menambahkan kategori sampah.
 
 **URL:** `/`
 **Method:** `POST`
@@ -25,16 +23,14 @@ Endpoint untuk menambahkan kategori sampah baru. Endpoint ini dibatasi hanya unt
 
 ```json
 {
-  "categoryCode": "Anorganik",
-  "categoryName": "Anorganik",
-  "description": "Sampah sulit terurai",
-  "handlingTips": "Pisahkan untuk daur ulang",
-  "colorHex": "rgb(33, 150, 243)", // Bisa Hex (#RGB/#RRGGBB) atau rgb(r, g, b)
+  "categoryCode": "ORG",
+  "categoryName": "Organik",
+  "description": "Sampah mudah terurai",
+  "handlingTips": "Pisahkan dari sampah lain",
+  "colorHex": "#2196F3",
   "pointsReward": 10
 }
 ```
-
-_(Catatan: `categoryCode`, `categoryName`, dan `pointsReward` wajib diisi. Kolom lainnya opsional. `categoryCode` otomatis di-format menjadi `HURUF_BESAR_DENGAN_UNDERSCORE`)._
 
 ### Success Response (201 Created)
 
@@ -44,26 +40,24 @@ _(Catatan: `categoryCode`, `categoryName`, dan `pointsReward` wajib diisi. Kolom
   "message": "Succesfully create waste category",
   "data": {
     "id": "uuid",
-    "categoryCode": "Anorganik",
-    "categoryName": "Anorganik",
-    "description": "Sampah sulit terurai",
-    "handlingTips": "Pisahkan untuk daur ulang",
+    "categoryCode": "ORG",
+    "categoryName": "Organik",
+    "description": "Sampah mudah terurai",
+    "handlingTips": "Pisahkan dari sampah lain",
     "colorHex": "#2196F3",
     "pointsReward": 10,
-    "created_at": "2026-04-26T00:00:00.000Z",
-    "updated_at": "2026-04-26T00:00:00.000Z"
+    "createdAt": "2026-04-26T00:00:00.000Z",
+    "updatedAt": "2026-04-26T00:00:00.000Z"
   }
 }
 ```
 
-### Error Response (400 Bad Request / 409 Conflict)
-
-Jika data tidak valid atau `categoryCode` sudah digunakan.
+### Error Response (409 Conflict)
 
 ```json
 {
   "status": 409,
-  "message": "Conflict: Category code already exists",
+  "message": "Conflict: categoryCode already exists",
   "data": null
 }
 ```
@@ -72,7 +66,7 @@ Jika data tidak valid atau `categoryCode` sudah digunakan.
 
 ## 2. Get All Waste Categories
 
-Endpoint untuk mengambil seluruh daftar kategori sampah. Endpoint ini mendukung sistem _caching_ dengan Redis.
+Endpoint publik untuk mengambil seluruh kategori sampah.
 
 **URL:** `/`
 **Method:** `GET`
@@ -83,7 +77,7 @@ Endpoint untuk mengambil seluruh daftar kategori sampah. Endpoint ini mendukung 
 ```json
 {
   "status": 200,
-  "message": "Succesfully get all waste categories (from cache)",
+  "message": "Succesfully get all waste categories",
   "data": [
     {
       "id": "uuid",
@@ -95,17 +89,6 @@ Endpoint untuk mengambil seluruh daftar kategori sampah. Endpoint ini mendukung 
       "pointsReward": 10,
       "createdAt": "2026-04-26T10:47:44.399Z",
       "updatedAt": "2026-04-26T10:47:46.302Z"
-    },
-    {
-      "id": "uuid",
-      "categoryCode": "BUKAN SAMPAH",
-      "categoryName": "Bukan Sampah",
-      "description": "Auto generated bukan sampah",
-      "handlingTips": "Auto tips bukan sampah",
-      "colorHex": "#2dd7eb",
-      "pointsReward": 27,
-      "createdAt": "2026-04-26T10:47:44.399Z",
-      "updatedAt": "2026-04-26T10:47:46.302Z"
     }
   ]
 }
@@ -113,17 +96,17 @@ Endpoint untuk mengambil seluruh daftar kategori sampah. Endpoint ini mendukung 
 
 ---
 
-## 3. Get Waste Category by ID
+## 3. Get Waste Category By ID
 
-Endpoint untuk mengambil data spesifik dari satu kategori sampah berdasarkan ID.
+Endpoint publik untuk mengambil detail kategori sampah.
 
 **URL:** `/:id`
 **Method:** `GET`
 **Auth Required:** No
 
-### Parameters
+### Path Parameter
 
-- `id` (path, string): UUID dari kategori sampah.
+- `id`: UUID kategori sampah.
 
 ### Success Response (200 OK)
 
@@ -147,8 +130,6 @@ Endpoint untuk mengambil data spesifik dari satu kategori sampah berdasarkan ID.
 
 ### Error Response (404 Not Found)
 
-Jika ID kategori sampah tidak ditemukan di sistem.
-
 ```json
 {
   "status": 404,
@@ -161,18 +142,18 @@ Jika ID kategori sampah tidak ditemukan di sistem.
 
 ## 4. Update Waste Category
 
-Endpoint untuk memperbarui data spesifik kategori sampah. Anda tidak bisa mengubah `categoryCode` (Omitted by schema). Endpoint ini akan secara otomatis membersihkan cache list kategori sampah.
+Endpoint admin untuk mengubah kategori sampah.
 
 **URL:** `/:id`
 **Method:** `PATCH`
 **Auth Required:** Yes
 **Role Required:** Admin
 
-### Parameters
+### Path Parameter
 
-- `id` (path, string): UUID dari kategori sampah.
+- `id`: UUID kategori sampah.
 
-### Request Body (Semua atribut opsional)
+### Request Body
 
 ```json
 {
@@ -188,7 +169,6 @@ Endpoint untuk memperbarui data spesifik kategori sampah. Anda tidak bisa mengub
   "status": 200,
   "message": "Successfully update waste category",
   "data": {
-    "id": "uuid",
     "id": "uuid",
     "categoryCode": "ANORGANIK",
     "categoryName": "Sampah Anorganik Update",
@@ -206,16 +186,16 @@ Endpoint untuk memperbarui data spesifik kategori sampah. Anda tidak bisa mengub
 
 ## 5. Delete Waste Category
 
-Endpoint untuk menghapus kategori sampah dari sistem. Menghapus kategori juga akan menghapus/mengosongkan data di _cache_.
+Endpoint admin untuk menghapus kategori sampah.
 
 **URL:** `/:id`
 **Method:** `DELETE`
 **Auth Required:** Yes
 **Role Required:** Admin
 
-### Parameters
+### Path Parameter
 
-- `id` (path, string): UUID dari kategori sampah.
+- `id`: UUID kategori sampah.
 
 ### Success Response (200 OK)
 

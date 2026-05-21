@@ -4,8 +4,11 @@ import { cacheKey } from '../infrastructure/cache/cache-key.ts';
 import { prisma } from '../infrastructure/database/prisma-client.ts';
 import { supabase } from '../infrastructure/database/supabase.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
+import type { SessionUser } from '../types/user-global-type.ts';
 import { container } from '../utils/container.ts';
 import ResponseServer from '../utils/response-server.ts';
+
+const USER_SESSION_CACHE_TTL = 60 * 15;
 
 const middlewareName = '[Auth Middleware]';
 
@@ -33,11 +36,22 @@ export const authMiddleware = async (
 
     const userId = data.user.id;
 
-    let dbUser = await container.cacheService.get(cacheKey.userSession(userId));
+    let dbUser = (await container.cacheService.get(
+      cacheKey.userSession(userId),
+    )) as SessionUser | null;
 
     if (!dbUser) {
       dbUser = await prisma.users.findUnique({
         where: { id: userId },
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+          email: true,
+          role: true,
+          avatar_url: true,
+          aiTokens: true,
+        },
       });
 
       if (!dbUser) {
@@ -45,7 +59,11 @@ export const authMiddleware = async (
         return ResponseServer.error(res, 404, 'User not found in database');
       }
 
-      await container.cacheService.set(cacheKey.userSession(userId), dbUser);
+      await container.cacheService.set(
+        cacheKey.userSession(userId),
+        dbUser,
+        USER_SESSION_CACHE_TTL,
+      );
     }
 
     req.user = dbUser;
