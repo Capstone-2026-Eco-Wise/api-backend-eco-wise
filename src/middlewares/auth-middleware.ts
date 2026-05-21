@@ -53,6 +53,6 @@ export const authMiddleware = async (
 
     next();
   } catch (error) {
-    ErrorFactory.handlerServiceError(error, middlewareName);
+    throw ErrorFactory.handlerServiceError(error, middlewareName);
   }
 };

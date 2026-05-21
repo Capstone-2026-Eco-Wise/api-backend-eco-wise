@@ -6,6 +6,12 @@ import type {
 } from './waste-categories-type.ts';
 
 export default class WasteCategoriesRepository {
+  findCategoryCode = async ({ categoryCode }: { categoryCode: string }) => {
+    return await prisma.wasteCategories.findUnique({
+      where: { categoryCode },
+    });
+  };
+
   create = async (
     {
       categoryCode,

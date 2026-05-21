@@ -149,8 +149,6 @@ export default class FaqsService {
     try {
       logger.info(`${this.serviceName}: Updating FAQ by creator`);
 
-      console.log('Params FAQ', params);
-
       const { isOwner, message } = await this.faqsRepository.checkIsOwner({
         id: params.id as string,
         createdBy: params.createdBy as string,

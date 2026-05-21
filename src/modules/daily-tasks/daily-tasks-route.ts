@@ -30,7 +30,7 @@ class DailyTasksRoute {
     this.dailyTasksRoute.post(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateSchema(createDailyTasksValidation),
       this.dailyTasksController.create,
     );
@@ -49,16 +49,17 @@ class DailyTasksRoute {
     this.dailyTasksRoute.put(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateSchema(updateDailyTasksValidation),
       this.dailyTasksController.update,
     );
     this.dailyTasksRoute.delete(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       this.dailyTasksController.delete,
     );
+
     return this.dailyTasksRoute;
   }
 }

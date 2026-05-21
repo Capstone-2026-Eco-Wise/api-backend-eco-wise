@@ -128,7 +128,7 @@ export default class DailyTasksService {
         ...(taskName && { taskName }),
         ...(description && { description }),
         ...(pointReward && { pointReward }),
-        ...(isActive && { isActive }),
+        ...(isActive !== undefined && { isActive }),
         ...(activeDate && { activeDate }),
       });
 

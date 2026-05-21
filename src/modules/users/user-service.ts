@@ -30,6 +30,15 @@ export default class UserService {
     this.serviceName = '[User Service]';
   }
 
+  private cleanUpCacheUser = async (id: string) => {
+    return await Promise.all([
+      this.cache.del(cacheKey.userSession(id)),
+      this.cache.del(cacheKey.ecoPoints(id)),
+      this.cache.del(cacheKey.scanHistory(id)),
+      this.cache.del(cacheKey.faqsByCreator(id)),
+    ]);
+  };
+
   sessionUser = async (user: Users) => {
     try {
       logger.info(`${this.serviceName}: Getting session user for ${user.id}`);
@@ -178,6 +187,26 @@ export default class UserService {
       await this.cache.del(cacheKey.userSession(id));
 
       return updateRole;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  deletedUser = async (id: string) => {
+    try {
+      logger.info(`${this.serviceName}: Deleting user ${id}`);
+
+      const user = await this.userRepository.deleteUser(id);
+
+      if (!user) {
+        throw ErrorFactory.notFoundError('User not found');
+      }
+
+      await this.cleanUpCacheUser(id);
+
+      logger.info(`${this.serviceName}: Delete user successfully ${id}`);
+
+      return user;
     } catch (error) {
       ErrorFactory.handlerServiceError(error, this.serviceName);
     }

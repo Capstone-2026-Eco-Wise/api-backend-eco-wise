@@ -1,10 +1,12 @@
 import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
+import type { TransactionClient } from '../../types/transaction-type.ts';
 import type {
   QueryParamUserType,
   UpdateAvatarUserType,
   UpdateProfileUserType,
   UpdateRoleUserType,
+  UpdateTokenUserType,
 } from './user-type.ts';
 
 export default class UserRepository {
@@ -70,6 +72,37 @@ export default class UserRepository {
         id: true,
         role: true,
         email: true,
+        aiTokens: true,
+      },
+    });
+  };
+
+  updateTokenUser = async (
+    { id, aiTokens }: UpdateTokenUserType,
+    tx?: TransactionClient,
+  ) => {
+    if (aiTokens <= 0) {
+      return {
+        id,
+        aiTokens: aiTokens,
+      };
+    }
+
+    const db = tx ?? prisma;
+
+    return await db.users.update({
+      where: {
+        id,
+      },
+      data: {
+        aiTokens: aiTokens - 1,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        username: true,
+        aiTokens: true,
       },
     });
   };
@@ -103,6 +136,14 @@ export default class UserRepository {
       },
       data: {
         role,
+      },
+    });
+  };
+
+  deleteUser = async (id: string) => {
+    return await prisma.users.delete({
+      where: {
+        id,
       },
     });
   };

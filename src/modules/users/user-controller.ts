@@ -104,4 +104,21 @@ export default class UserController {
       updateUser,
     );
   };
+
+  delete = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Session not found');
+    }
+
+    const userDeleted = await this.userService.deletedUser(
+      req.params.id as string,
+    );
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Delete user successfuly',
+      userDeleted,
+    );
+  };
 }

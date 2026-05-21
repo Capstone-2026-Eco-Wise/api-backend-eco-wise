@@ -20,7 +20,7 @@ class StatisticsRoute {
     this.statisticsRoute.get(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       this.statisticsController.getDashboardStats,
     );
     return this.statisticsRoute;

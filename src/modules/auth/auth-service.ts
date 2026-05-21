@@ -168,11 +168,12 @@ export default class AuthService {
     }
   };
 
-  authSignOut = async (user: Users) => {
+  authSignOut = async (user: Users, accessToken: string) => {
     try {
       logger.info(`${this.serviceName}: User sign out`);
 
-      const { error: errorAuthLogOut } = await this.authRepository.signOut();
+      const { error: errorAuthLogOut } =
+        await this.authRepository.signOut(accessToken);
 
       if (errorAuthLogOut) {
         throw ErrorFactory.clientError(

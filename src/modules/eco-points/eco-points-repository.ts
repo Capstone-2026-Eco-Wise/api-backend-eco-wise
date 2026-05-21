@@ -1,4 +1,6 @@
+import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
+import type { TransactionClient } from '../../types/transaction-type.ts';
 import type {
   CreateEcoPointsTypes,
   UpdateTotalPointsType,
@@ -29,8 +31,12 @@ export default class EcoPointsRepository {
     });
   };
 
-  currentPointAndStreakUser = async (userId: string) => {
-    return await prisma.ecoPoints.findUnique({
+  currentPointAndStreakUser = async (
+    userId: string,
+    tx?: TransactionClient,
+  ) => {
+    const db = tx ?? prisma;
+    return await db.ecoPoints.findUnique({
       where: { userId },
       select: {
         totalPoints: true,
@@ -41,14 +47,18 @@ export default class EcoPointsRepository {
     });
   };
 
-  updatePointsUserAndStreak = async ({
-    userId,
-    newPoints,
-    currentStreak,
-    longestStreak,
-    lastActiveDate,
-  }: UpdateTotalPointsType) => {
-    return await prisma.ecoPoints.update({
+  updatePointsUserAndStreak = async (
+    {
+      userId,
+      newPoints,
+      currentStreak,
+      longestStreak,
+      lastActiveDate,
+    }: UpdateTotalPointsType,
+    tx?: TransactionClient,
+  ) => {
+    const db = tx ?? prisma;
+    return await db.ecoPoints.update({
       where: {
         userId,
       },
@@ -58,6 +68,21 @@ export default class EcoPointsRepository {
         longestStreak,
         lastActiveDate,
       },
+    });
+  };
+
+  getPointUserLeaderboard = async ({
+    type = 'totalPoints',
+  }: {
+    type: 'currentStreak' | 'totalPoints';
+  }) => {
+    const orderBy: Prisma.ecoPointsOrderByWithAggregationInput = {
+      ...(type === 'currentStreak' ? { currentStreak: 'desc' } : {}),
+      ...(type === 'totalPoints' ? { totalPoints: 'desc' } : {}),
+    };
+
+    return await prisma.ecoPoints.findMany({
+      orderBy,
     });
   };
 }

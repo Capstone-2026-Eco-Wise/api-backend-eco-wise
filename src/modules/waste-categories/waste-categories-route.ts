@@ -28,7 +28,7 @@ class WasteCategoriesRoute {
     this.wasteCategoriesRoute.post(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateSchema(createWasteCategorySchema),
       this.wasteCategoriesController.create,
     );
@@ -41,7 +41,7 @@ class WasteCategoriesRoute {
     this.wasteCategoriesRoute.patch(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateSchema(updateWasteCategorySchema),
       validateParams('id'),
       this.wasteCategoriesController.update,
@@ -49,7 +49,7 @@ class WasteCategoriesRoute {
     this.wasteCategoriesRoute.delete(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateParams('id'),
       this.wasteCategoriesController.delete,
     );

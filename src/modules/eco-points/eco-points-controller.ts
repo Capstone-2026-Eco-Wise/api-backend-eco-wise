@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import type EcoPointsService from './eco-points-service.ts';
 import ResponseServer from '../../utils/response-server.ts';
+import type EcoPointsService from './eco-points-service.ts';
 
 export default class EcoPointsController {
   private ecoPointsService: EcoPointsService;
@@ -22,19 +22,18 @@ export default class EcoPointsController {
     );
   };
 
-  updatePoint = async (req: Request, res: Response) => {
-    const { pointUpdate } = req.body;
+  leaderboard = async (req: Request, res: Response) => {
+    const { type } = req.query;
 
-    const result = await this.ecoPointsService.updatePointsUser({
-      userId: req.user?.id as string,
-      pointUpdate,
+    const leaderboard = await this.ecoPointsService.leaderboardUserPoints({
+      type: type as 'currentStreak' | 'totalPoints',
     });
 
     return ResponseServer.success(
       res,
-      201,
-      'Successfuly update eco points',
-      result,
+      200,
+      'Successfuly get leaderboard',
+      leaderboard,
     );
   };
 }

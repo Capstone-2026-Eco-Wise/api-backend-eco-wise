@@ -3,7 +3,7 @@ import type { ROLE_USER } from '../../generated/prisma/enums.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
 import ResponseServer from '../utils/response-server.ts';
 
-export const accessControlMiddleware = (roles: ROLE_USER[]) => {
+export const accessControlMiddleware = (roles: ROLE_USER) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
 

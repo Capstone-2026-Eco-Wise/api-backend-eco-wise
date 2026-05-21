@@ -41,6 +41,14 @@ export default class WasteCategoriesService {
         .trim()
         .toUpperCase();
 
+      const isExist = await this.wasteCategoriesRepository.findCategoryCode({
+        categoryCode: categoryCodeGenerate,
+      });
+
+      if (isExist) {
+        throw ErrorFactory.clientError('Category Code is already exist', 409);
+      }
+
       const resultCreate = await this.wasteCategoriesRepository.create({
         categoryCode: categoryCodeGenerate,
         categoryName,

@@ -21,6 +21,7 @@ Endpoint untuk mengambil data profil user yang sedang login berdasarkan token. E
 **Auth Required:** Yes
 
 ### Success Response (200 OK)
+
 ```json
 {
   "status": 200,
@@ -36,7 +37,9 @@ Endpoint untuk mengambil data profil user yang sedang login berdasarkan token. E
 ```
 
 ### Error Response (401 Unauthorized)
+
 Jika token tidak dikirim, kadaluarsa, atau tidak valid.
+
 ```json
 {
   "status": 401,
@@ -57,9 +60,11 @@ Endpoint untuk memperbarui foto profil (avatar) pengguna. Endpoint ini menerima 
 **Content-Type:** `multipart/form-data`
 
 ### Request Body (Form Data)
+
 - `avatar`: File gambar yang ingin diunggah.
 
 ### Success Response (200 OK)
+
 ```json
 {
   "status": 200,
@@ -86,12 +91,14 @@ Endpoint untuk mengambil seluruh data pengguna. Mendukung pencarian dan paginasi
 **Role Required:** Admin
 
 ### Query Parameters
+
 - `page` (number, opsional)
 - `limit` (number, opsional)
 - `role` (string, opsional): Filter berdasarkan role (`admin` atau `user`)
 - `search` (string, opsional): Pencarian nama, email, atau username
 
 ### Success Response (200 OK)
+
 ```json
 {
   "status": 200,
@@ -126,6 +133,7 @@ Endpoint untuk memperbarui data profil dasar pengguna.
 **Auth Required:** Yes
 
 ### Request Body
+
 ```json
 {
   "fullName": "John Doe Baru"
@@ -133,6 +141,7 @@ Endpoint untuk memperbarui data profil dasar pengguna.
 ```
 
 ### Success Response (200 OK)
+
 ```json
 {
   "status": 200,
@@ -156,9 +165,11 @@ Endpoint untuk mengubah hak akses pengguna.
 **Role Required:** Admin
 
 ### Parameters
+
 - `id` (path, string): UUID dari pengguna.
 
 ### Request Body
+
 ```json
 {
   "role": "admin"
@@ -166,6 +177,7 @@ Endpoint untuk mengubah hak akses pengguna.
 ```
 
 ### Success Response (200 OK)
+
 ```json
 {
   "status": 200,
@@ -173,6 +185,28 @@ Endpoint untuk mengubah hak akses pengguna.
   "data": {
     "id": "uuid",
     "role": "admin"
+  }
+}
+```
+
+## 6. Delete User
+
+Endpoint untuk menghapus user.
+
+**URL:** `/:id`
+**Method:** `DELETE`
+**Auth Required:** Yes
+**Role Required:** Admin
+
+### Success Response (200 OK)
+
+```json
+{
+  "status": 200,
+  "message": "Delete user successfuly",
+  "data": {
+    "id": "uuid",
+    ...
   }
 }
 ```

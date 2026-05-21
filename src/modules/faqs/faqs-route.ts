@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { accessControlMiddleware } from '../../middlewares/access-control-middleware.ts';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
-import { validateSchema } from '../../middlewares/validation-middleware.ts';
+import {
+  validateParams,
+  validateSchema,
+} from '../../middlewares/validation-middleware.ts';
 import { container } from '../../utils/container.ts';
 import FaqsController from './faqs-controller.ts';
 import { createFAQValidation, updateFAQValidation } from './faqs-validation.ts';
@@ -20,7 +23,7 @@ class FaqsRoute {
     this.faqsRoute.post(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       validateSchema(createFAQValidation),
       this.faqsController.create,
     );
@@ -28,20 +31,22 @@ class FaqsRoute {
     this.faqsRoute.get(
       '/creator',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       this.faqsController.getFAQsCreator,
     );
     this.faqsRoute.put(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
+      validateParams('id'),
       validateSchema(updateFAQValidation),
       this.faqsController.updateByCreator,
     );
     this.faqsRoute.delete(
       '/:id',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
+      validateParams('id'),
       this.faqsController.deleteByCreator,
     );
 

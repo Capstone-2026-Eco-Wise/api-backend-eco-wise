@@ -5,12 +5,16 @@ type UpdateDataUserType = {
   fullName: string;
   role: ROLE_USER;
   avatarUrl: string | null;
+  aiTokens: number;
+  tokenResetAt: Date;
 };
 
 export type UserUpdateAvatarType = {
   user: Users;
   file: Express.Multer.File;
 };
+
+export type UpdateTokenUserType = Pick<UpdateDataUserType, 'id' | 'aiTokens'>;
 
 export type UpdateAvatarUserType = Pick<UpdateDataUserType, 'id' | 'avatarUrl'>;
 

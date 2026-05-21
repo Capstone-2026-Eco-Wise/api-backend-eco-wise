@@ -2,8 +2,9 @@ import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
-import type { PayloadUpdateTotalPointsType } from './eco-points-type.ts';
+import type { TransactionClient } from '../../types/transaction-type.ts';
 import type EcoPointsRepository from './eco-points-repository.ts';
+import type { PayloadUpdateTotalPointsType } from './eco-points-type.ts';
 
 export default class EcoPointsService {
   private ecoPointsRepository: EcoPointsRepository;
@@ -84,6 +85,18 @@ export default class EcoPointsService {
     };
   };
 
+  private getJakartaDate = (): Date => {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const jakartaDateString = formatter.format(new Date());
+
+    return new Date(`${jakartaDateString}T00:00:00.000Z`);
+  };
+
   createDefaultPointUser = async (userId: string) => {
     try {
       logger.info(
@@ -93,7 +106,7 @@ export default class EcoPointsService {
       const totalPoints: number = 0;
       const currentStreak: number = 0;
       const longestStreak: number = 0;
-      const lastActiveDate: Date = new Date(Date.now());
+      const lastActiveDate: Date = this.getJakartaDate();
 
       const ecoPointsData = await this.ecoPointsRepository.createDefaultPoints({
         userId,
@@ -174,44 +187,89 @@ export default class EcoPointsService {
     }
   };
 
+  leaderboardUserPoints = async ({
+    type,
+  }: {
+    type: 'currentStreak' | 'totalPoints';
+  }) => {
+    try {
+      const leaderboard =
+        await this.ecoPointsRepository.getPointUserLeaderboard({
+          type,
+        });
+
+      if (leaderboard.length === 0) {
+        throw ErrorFactory.notFoundError('No users found for leaderboard');
+      }
+
+      return leaderboard;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
   updatePointsUser = async ({
     userId,
     pointUpdate,
   }: PayloadUpdateTotalPointsType) => {
+    return this.updatePointsUserWithTx({ userId, pointUpdate });
+  };
+
+  /**
+   * Versi updatePointsUser yang menerima optional Prisma transaction client.
+   * Gunakan ini saat operasi update eco points perlu berjalan dalam satu
+   * transaksi bersama operasi DB lain (misal: createUserTaskCompletions).
+   */
+  updatePointsUserWithTx = async (
+    { userId, pointUpdate }: PayloadUpdateTotalPointsType,
+    tx?: TransactionClient,
+  ) => {
     try {
       logger.info(
         `${this.serviceName}: Starting eco points update for user ${userId}`,
       );
 
       const currentPoints =
-        await this.ecoPointsRepository.currentPointAndStreakUser(userId);
+        await this.ecoPointsRepository.currentPointAndStreakUser(userId, tx);
 
       if (!currentPoints) {
         throw ErrorFactory.notFoundError('Eco points not found');
       }
 
-      const newPoints: number = currentPoints.totalPoints + Number(pointUpdate);
+      const diffDays = this.getDiffDaysFromToday(currentPoints.lastActiveDate);
 
-      // Calculate streak
-      const currentStreak = this.calculateStreak(
-        currentPoints.lastActiveDate,
-        currentPoints.currentStreak,
-      );
+      const newPoints = currentPoints.totalPoints + Number(pointUpdate);
 
-      let longestStreak: number = currentPoints.longestStreak;
-      if (currentStreak > longestStreak) {
-        longestStreak = currentStreak;
+      let currentStreak = currentPoints.currentStreak;
+      let longestStreak = currentPoints.longestStreak;
+      let lastActiveDate = currentPoints.lastActiveDate;
+
+      // Only calculate and update streak if it hasn't been updated today
+      if (diffDays !== 0) {
+        currentStreak = this.calculateStreak(
+          currentPoints.lastActiveDate,
+          currentPoints.currentStreak,
+        );
+
+        if (currentStreak > longestStreak) {
+          longestStreak = currentStreak;
+        }
+
+        lastActiveDate = this.getJakartaDate();
       }
 
-      // Update database
+      // Update database (dengan atau tanpa tx)
       const totalPointsUpdate =
-        await this.ecoPointsRepository.updatePointsUserAndStreak({
-          userId,
-          newPoints,
-          currentStreak,
-          longestStreak,
-          lastActiveDate: new Date(),
-        });
+        await this.ecoPointsRepository.updatePointsUserAndStreak(
+          {
+            userId,
+            newPoints,
+            currentStreak,
+            longestStreak,
+            lastActiveDate,
+          },
+          tx,
+        );
 
       if (!totalPointsUpdate) {
         throw ErrorFactory.clientError('Failed to update eco points');
@@ -225,7 +283,7 @@ export default class EcoPointsService {
 
       return totalPointsUpdate;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

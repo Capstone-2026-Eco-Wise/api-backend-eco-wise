@@ -39,7 +39,12 @@ export default class AuthController {
       return ResponseServer.error(res, 401, 'Session not found');
     }
 
-    const { message } = await this.authService.authSignOut(req.user);
+    const accessToken = req.headers.authorization?.split(' ')[1];
+
+    const { message } = await this.authService.authSignOut(
+      req.user,
+      accessToken as string,
+    );
 
     return ResponseServer.success(res, 200, message, null);
   };

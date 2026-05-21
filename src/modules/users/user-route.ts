@@ -2,7 +2,10 @@ import { Router } from 'express';
 import { accessControlMiddleware } from '../../middlewares/access-control-middleware.ts';
 import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import UploadMiddleware from '../../middlewares/upload-middleware.ts';
-import { validateSchema } from '../../middlewares/validation-middleware.ts';
+import {
+  validateParams,
+  validateSchema,
+} from '../../middlewares/validation-middleware.ts';
 import { container } from '../../utils/container.ts';
 import UserController from './user-controller.ts';
 import {
@@ -26,7 +29,7 @@ class UserRoute {
     this.userRoute.get(
       '/',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
       this.userController.getAll,
     );
     this.userRoute.get('/me', authMiddleware, this.userController.session);
@@ -45,9 +48,17 @@ class UserRoute {
     this.userRoute.patch(
       '/:id/role',
       authMiddleware,
-      accessControlMiddleware(['admin']),
+      accessControlMiddleware('admin'),
+      validateParams('id'),
       validateSchema(updateRoleUserValidation),
       this.userController.updateRole,
+    );
+    this.userRoute.delete(
+      '/:id',
+      authMiddleware,
+      accessControlMiddleware('admin'),
+      validateParams('id'),
+      this.userController.delete,
     );
 
     return this.userRoute;
