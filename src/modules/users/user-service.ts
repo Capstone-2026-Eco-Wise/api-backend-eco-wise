@@ -1,10 +1,10 @@
+import type { Users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type StorageService from '../../services/storage-service.ts';
 import { storageConfig } from '../../services/storage-service.ts';
-import type { SessionUser } from '../../types/user-global-type.ts';
 import type UserRepository from './user-repository.ts';
 import type {
   QueryParamUserType,
@@ -40,13 +40,11 @@ export default class UserService {
     ]);
   };
 
-  sessionUser = async (user: SessionUser) => {
+  sessionUser = async (user: Users) => {
     try {
       logger.info(`${this.serviceName}: Getting session user for ${user.id}`);
 
-      const cacheSession = (await this.cache.get(
-        cacheKey.userSession(user.id),
-      )) as SessionUser | null;
+      const cacheSession = await this.cache.get(cacheKey.userSession(user.id));
 
       if (cacheSession) {
         return { user: cacheSession, fromCache: true };

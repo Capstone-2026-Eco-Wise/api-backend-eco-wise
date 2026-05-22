@@ -4,7 +4,6 @@ import { cacheKey } from '../infrastructure/cache/cache-key.ts';
 import { prisma } from '../infrastructure/database/prisma-client.ts';
 import { supabase } from '../infrastructure/database/supabase.ts';
 import { logger } from '../infrastructure/logger/logger.ts';
-import type { SessionUser } from '../types/user-global-type.ts';
 import { container } from '../utils/container.ts';
 import ResponseServer from '../utils/response-server.ts';
 
@@ -36,9 +35,7 @@ export const authMiddleware = async (
 
     const userId = data.user.id;
 
-    let dbUser = (await container.cacheService.get(
-      cacheKey.userSession(userId),
-    )) as SessionUser | null;
+    let dbUser = await container.cacheService.get(cacheKey.userSession(userId));
 
     if (!dbUser) {
       dbUser = await prisma.users.findUnique({
