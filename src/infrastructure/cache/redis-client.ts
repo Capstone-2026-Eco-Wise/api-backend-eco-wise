@@ -33,11 +33,23 @@ export default class RedisClient {
     return RedisClient.instance;
   }
 
+  private connectPromise: Promise<void> | null = null;
+
   connect = async () => {
-    if (!this.isConnected) {
-      await this.client.connect();
-      this.isConnected = true;
+    if (this.isConnected) return;
+
+    if (!this.connectPromise) {
+      this.connectPromise = this.client
+        .connect()
+        .then(() => {
+          this.isConnected = true;
+        })
+        .catch((err) => {
+          this.connectPromise = null;
+          throw err;
+        });
     }
+    return this.connectPromise;
   };
 
   disconnect = async () => {

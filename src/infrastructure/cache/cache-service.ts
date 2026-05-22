@@ -11,22 +11,33 @@ export default class CacheService {
   }
 
   get = async (key: string) => {
-    logger.info(`[cache] get key: ${key}`);
-
-    const data = await this.redisClient.get(key);
-
-    return data ? JSON.parse(data) : null;
+    try {
+      logger.info(`[cache] get key: ${key}`);
+      const data = await this.redisClient.get(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      logger.error(`[cache] get failed for key ${key}: ${(error as Error).message}`);
+      return null;
+    }
   };
 
   set = async (key: string, value: unknown, ttl: number = 3600) => {
-    logger.info(`[cache] set key: ${key}, ttl: ${ttl}`);
-
-    return await this.redisClient.set(key, JSON.stringify(value), { EX: ttl });
+    try {
+      logger.info(`[cache] set key: ${key}, ttl: ${ttl}`);
+      return await this.redisClient.set(key, JSON.stringify(value), { EX: ttl });
+    } catch (error) {
+      logger.error(`[cache] set failed for key ${key}: ${(error as Error).message}`);
+      return null;
+    }
   };
 
   del = async (key: string) => {
-    logger.info(`[cache] del key: ${key}`);
-
-    return await this.redisClient.del(key);
+    try {
+      logger.info(`[cache] del key: ${key}`);
+      return await this.redisClient.del(key);
+    } catch (error) {
+      logger.error(`[cache] del failed for key ${key}: ${(error as Error).message}`);
+      return null;
+    }
   };
 }
