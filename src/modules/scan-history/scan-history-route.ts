@@ -3,6 +3,7 @@ import { authMiddleware } from '../../middlewares/auth-middleware.ts';
 import UploadMiddleware from '../../middlewares/upload-middleware.ts';
 import { container } from '../../utils/container.ts';
 import ScanHistoryController from './scan-history-controller.ts';
+import { validateParams } from '../../middlewares/validation-middleware.ts';
 
 class ScanHistoryRoute {
   private scanHistoryRoute: Router;
@@ -33,6 +34,7 @@ class ScanHistoryRoute {
     this.scanHistoryRoute.get(
       '/:id',
       authMiddleware,
+      validateParams('id'),
       this.scanHistoryController.getById,
     );
 

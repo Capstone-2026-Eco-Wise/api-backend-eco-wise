@@ -18,12 +18,17 @@ export default class ScanHistoryController {
       return ResponseServer.error(res, 400, 'Image not found');
     }
 
-    const result = await this.scanHistoryService.processUserScan(
-      req.user,
-      req.file,
-    );
+    const scanHistory = await this.scanHistoryService.processScanImage({
+      user: req.user,
+      file: req.file,
+    });
 
-    return ResponseServer.success(res, 201, 'Successfully predicted', result);
+    return ResponseServer.success(
+      res,
+      201,
+      'Successfully predicted',
+      scanHistory,
+    );
   };
 
   getAll = async (req: Request, res: Response) => {

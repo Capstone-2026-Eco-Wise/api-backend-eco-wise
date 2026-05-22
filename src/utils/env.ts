@@ -12,6 +12,7 @@ const envSchema = z.object({
   DIRECT_URL: z.url('DIRECT_URL must be a valid URL'),
   SUPABASE_URL: z.url('SUPABASE_URL must be a valid URL'),
   SUPABASE_ANON_KEY: z.string('SUPABASE_ANON_KEY must be a valid string'),
+  SUPABASE_JWT_SECRET: z.string('SUPABASE_JWT_SECRET must be a valid string'),
   AI_API_URL: z.url('AI_API_URL must be a valid string'),
 });
 

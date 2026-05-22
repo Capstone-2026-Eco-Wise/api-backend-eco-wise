@@ -1,18 +1,23 @@
 import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
+import type { TransactionClient } from '../../types/transaction-type.ts';
 import type { CreateScanHistoryType } from './scan-history-type.ts';
 
 export default class ScanHistoryRepository {
-  createScan = async ({
-    userId,
-    imageUrl,
-    confidenceScore,
-    pointEarned,
-    categoryId,
-    rawPredictions,
-    scannedAt,
-  }: CreateScanHistoryType) => {
-    return await prisma.scanHistory.create({
+  createScan = async (
+    {
+      userId,
+      imageUrl,
+      confidenceScore,
+      pointEarned,
+      categoryId,
+      rawPredictions,
+      scannedAt,
+    }: CreateScanHistoryType,
+    tx?: TransactionClient,
+  ) => {
+    const db = tx ?? prisma;
+    return await db.scanHistory.create({
       data: {
         userId,
         categoryId,

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import ResponseServer from '../../utils/response-server.ts';
 import type EcoPointsService from './eco-points-service.ts';
+import type { FilterLeaderboardType } from './eco-points-type.ts';
 
 export default class EcoPointsController {
   private ecoPointsService: EcoPointsService;
@@ -23,10 +24,10 @@ export default class EcoPointsController {
   };
 
   leaderboard = async (req: Request, res: Response) => {
-    const { type } = req.query;
+    const { type } = req.query as FilterLeaderboardType;
 
     const leaderboard = await this.ecoPointsService.leaderboardUserPoints({
-      type: type as 'currentStreak' | 'totalPoints',
+      type,
     });
 
     return ResponseServer.success(

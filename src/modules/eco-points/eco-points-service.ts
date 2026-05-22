@@ -4,7 +4,10 @@ import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type { TransactionClient } from '../../types/transaction-type.ts';
 import type EcoPointsRepository from './eco-points-repository.ts';
-import type { PayloadUpdateTotalPointsType } from './eco-points-type.ts';
+import type {
+  FilterLeaderboardType,
+  PayloadUpdateTotalPointsType,
+} from './eco-points-type.ts';
 
 export default class EcoPointsService {
   private ecoPointsRepository: EcoPointsRepository;
@@ -49,13 +52,9 @@ export default class EcoPointsService {
   ): number => {
     const diffDays = this.getDiffDaysFromToday(lastActiveDate);
 
-    if (diffDays === null) return 1;
+    if (!diffDays) return currentStreak;
 
-    if (diffDays === 0) return currentStreak;
-
-    if (diffDays === 1) return currentStreak + 1;
-
-    return 1;
+    return diffDays >= 1 ? currentStreak + 1 : currentStreak;
   };
 
   private statusStreak = (
@@ -92,6 +91,7 @@ export default class EcoPointsService {
       month: '2-digit',
       day: '2-digit',
     });
+
     const jakartaDateString = formatter.format(new Date());
 
     return new Date(`${jakartaDateString}T00:00:00.000Z`);
@@ -103,10 +103,13 @@ export default class EcoPointsService {
         `${this.serviceName}: Starting create default point for user ${userId}`,
       );
 
+      const dateYesterday = this.getJakartaDate();
+      dateYesterday.setDate(dateYesterday.getDate() - 1);
+
       const totalPoints: number = 0;
       const currentStreak: number = 0;
       const longestStreak: number = 0;
-      const lastActiveDate: Date = this.getJakartaDate();
+      const lastActiveDate: Date = dateYesterday;
 
       const ecoPointsData = await this.ecoPointsRepository.createDefaultPoints({
         userId,
@@ -187,11 +190,7 @@ export default class EcoPointsService {
     }
   };
 
-  leaderboardUserPoints = async ({
-    type,
-  }: {
-    type: 'currentStreak' | 'totalPoints';
-  }) => {
+  leaderboardUserPoints = async ({ type }: FilterLeaderboardType) => {
     try {
       const leaderboard =
         await this.ecoPointsRepository.getPointUserLeaderboard({
@@ -208,18 +207,6 @@ export default class EcoPointsService {
     }
   };
 
-  updatePointsUser = async ({
-    userId,
-    pointUpdate,
-  }: PayloadUpdateTotalPointsType) => {
-    return this.updatePointsUserWithTx({ userId, pointUpdate });
-  };
-
-  /**
-   * Versi updatePointsUser yang menerima optional Prisma transaction client.
-   * Gunakan ini saat operasi update eco points perlu berjalan dalam satu
-   * transaksi bersama operasi DB lain (misal: createUserTaskCompletions).
-   */
   updatePointsUserWithTx = async (
     { userId, pointUpdate }: PayloadUpdateTotalPointsType,
     tx?: TransactionClient,
@@ -229,51 +216,51 @@ export default class EcoPointsService {
         `${this.serviceName}: Starting eco points update for user ${userId}`,
       );
 
-      const currentPoints =
+      const currentEcoPointUser =
         await this.ecoPointsRepository.currentPointAndStreakUser(userId, tx);
 
-      if (!currentPoints) {
+      if (!currentEcoPointUser) {
         throw ErrorFactory.notFoundError('Eco points not found');
       }
 
-      const diffDays = this.getDiffDaysFromToday(currentPoints.lastActiveDate);
+      // calculate new point
+      const newPoints = currentEcoPointUser.totalPoints + Number(pointUpdate);
 
-      const newPoints = currentPoints.totalPoints + Number(pointUpdate);
+      // calculate streak
+      let newCurrentStreak = currentEcoPointUser.currentStreak;
+      let newLongestStreak = currentEcoPointUser.longestStreak;
+      let newLastActiveDate = currentEcoPointUser.lastActiveDate;
 
-      let currentStreak = currentPoints.currentStreak;
-      let longestStreak = currentPoints.longestStreak;
-      let lastActiveDate = currentPoints.lastActiveDate;
+      const today = new Date();
 
-      // Only calculate and update streak if it hasn't been updated today
-      if (diffDays !== 0) {
-        currentStreak = this.calculateStreak(
-          currentPoints.lastActiveDate,
-          currentPoints.currentStreak,
+      const isMatchDToday =
+        today.toDateString() ===
+        currentEcoPointUser?.lastActiveDate.toDateString();
+
+      if (!isMatchDToday) {
+        newCurrentStreak = this.calculateStreak(
+          currentEcoPointUser.lastActiveDate,
+          currentEcoPointUser.currentStreak,
         );
 
-        if (currentStreak > longestStreak) {
-          longestStreak = currentStreak;
+        if (newCurrentStreak > newLongestStreak) {
+          newLongestStreak = newCurrentStreak;
         }
 
-        lastActiveDate = this.getJakartaDate();
+        newLastActiveDate = this.getJakartaDate();
       }
 
-      // Update database (dengan atau tanpa tx)
       const totalPointsUpdate =
         await this.ecoPointsRepository.updatePointsUserAndStreak(
           {
             userId,
             newPoints,
-            currentStreak,
-            longestStreak,
-            lastActiveDate,
+            currentStreak: newCurrentStreak,
+            longestStreak: newLongestStreak,
+            lastActiveDate: newLastActiveDate,
           },
           tx,
         );
-
-      if (!totalPointsUpdate) {
-        throw ErrorFactory.clientError('Failed to update eco points');
-      }
 
       await this.cache.del(cacheKey.ecoPoints(userId));
 

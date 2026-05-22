@@ -19,3 +19,7 @@ export type PayloadUpdateTotalPointsType = Omit<
 > & {
   pointUpdate: number;
 };
+
+export type FilterLeaderboardType = {
+  type: 'streak' | 'point';
+};

@@ -4,9 +4,10 @@ import dailyTasksRoute from '../modules/daily-tasks/daily-tasks-route.ts';
 import ecoPointsRoute from '../modules/eco-points/eco-points-route.ts';
 import faqsRoute from '../modules/faqs/faqs-route.ts';
 import scanHistoryRoute from '../modules/scan-history/scan-history-route.ts';
+import statisticsRoute from '../modules/statistics/statistics-route.ts';
+import userTaskCompletionsRoute from '../modules/user-task-completions/user-task-completions-route.ts';
 import userRoute from '../modules/users/user-route.ts';
 import wasteCategoriesRoute from '../modules/waste-categories/waste-categories-route.ts';
-import statisticsRoute from '../modules/statistics/statistics-route.ts';
 import { env } from '../utils/env.ts';
 import { formatUptime } from '../utils/formated-time.ts';
 
@@ -27,6 +28,7 @@ class MainRouter {
     this.router.use('/eco-points', ecoPointsRoute);
     this.router.use('/scan-history', scanHistoryRoute);
     this.router.use('/daily-tasks', dailyTasksRoute);
+    this.router.use('/user-task-completions', userTaskCompletionsRoute);
     this.router.use('/statistics', statisticsRoute);
   };
 

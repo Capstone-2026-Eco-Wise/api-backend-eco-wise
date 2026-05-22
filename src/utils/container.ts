@@ -11,6 +11,8 @@ import ScanHistoryRepository from '../modules/scan-history/scan-history-reposito
 import ScanHistoryService from '../modules/scan-history/scan-history-service.ts';
 import StatisticsRepository from '../modules/statistics/statistics-repository.ts';
 import StatisticsService from '../modules/statistics/statistics-service.ts';
+import UserTaskCompletionsRepository from '../modules/user-task-completions/user-task-completions-repository.ts';
+import UserTaskCompletionsService from '../modules/user-task-completions/user-task-completions-service.ts';
 import UserRepository from '../modules/users/user-repository.ts';
 import UserService from '../modules/users/user-service.ts';
 import WasteCategoriesRepository from '../modules/waste-categories/waste-categories-repository.ts';
@@ -27,6 +29,7 @@ const ecoPointsRepository = new EcoPointsRepository();
 const scanHistoryRepository = new ScanHistoryRepository();
 const dailyTasksRepository = new DailyTasksRepository();
 const statisticsRepository = new StatisticsRepository();
+const userTaskCompletionsRepository = new UserTaskCompletionsRepository();
 
 const cacheService = new CacheService();
 const storageService = new StorageService();
@@ -50,15 +53,25 @@ const wasteCategoriesService = new WasteCategoriesService(
   wasteCategoriesRepository,
   cacheService,
 );
+const dailyTasksService = new DailyTasksService(dailyTasksRepository);
 const scanHistoryService = new ScanHistoryService(
   scanHistoryRepository,
+  wasteCategoriesRepository,
+  userRepository,
   aiService,
   storageService,
-  wasteCategoriesRepository,
   cacheService,
 );
-const dailyTasksService = new DailyTasksService(dailyTasksRepository);
-const statisticsService = new StatisticsService(statisticsRepository, cacheService);
+const statisticsService = new StatisticsService(
+  statisticsRepository,
+  cacheService,
+);
+const userTaskCompletionsService = new UserTaskCompletionsService(
+  userTaskCompletionsRepository,
+  scanHistoryService,
+  dailyTasksRepository,
+  ecoPointsService,
+);
 
 export const container = {
   cacheService,
@@ -70,4 +83,5 @@ export const container = {
   scanHistoryService,
   dailyTasksService,
   statisticsService,
+  userTaskCompletionsService,
 };

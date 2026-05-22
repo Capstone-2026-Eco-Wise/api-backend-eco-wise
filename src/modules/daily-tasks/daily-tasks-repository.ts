@@ -55,6 +55,10 @@ export default class DailyTasksRepository {
           id: true,
           categoryName: true,
           categoryCode: true,
+          colorHex: true,
+          description: true,
+          handlingTips: true,
+          pointsReward: true,
         },
       },
     };
@@ -88,11 +92,27 @@ export default class DailyTasksRepository {
     };
   };
 
-  getTaskById = async ({ id }: IdDailyTasksType) => {
+  getTaskById = async (
+    { id }: IdDailyTasksType,
+    optionInclude: Prisma.dailyTasksInclude = {
+      category: {
+        select: {
+          id: true,
+          categoryName: true,
+          categoryCode: true,
+          colorHex: true,
+          description: true,
+          handlingTips: true,
+          pointsReward: true,
+        },
+      },
+    },
+  ) => {
     return await prisma.dailyTasks.findUnique({
       where: {
         id,
       },
+      include: optionInclude,
     });
   };
 

@@ -3,6 +3,7 @@ import { prisma } from '../../infrastructure/database/prisma-client.ts';
 import type { TransactionClient } from '../../types/transaction-type.ts';
 import type {
   CreateEcoPointsTypes,
+  FilterLeaderboardType,
   UpdateTotalPointsType,
 } from './eco-points-type.ts';
 
@@ -72,17 +73,29 @@ export default class EcoPointsRepository {
   };
 
   getPointUserLeaderboard = async ({
-    type = 'totalPoints',
-  }: {
-    type: 'currentStreak' | 'totalPoints';
-  }) => {
-    const orderBy: Prisma.ecoPointsOrderByWithAggregationInput = {
-      ...(type === 'currentStreak' ? { currentStreak: 'desc' } : {}),
-      ...(type === 'totalPoints' ? { totalPoints: 'desc' } : {}),
-    };
+    type = 'streak',
+  }: FilterLeaderboardType) => {
+    const orderBy: Prisma.ecoPointsOrderByWithAggregationInput[] = [
+      {
+        ...(type === 'streak' ? { currentStreak: 'desc' } : {}),
+        ...(type === 'point' ? { totalPoints: 'desc' } : {}),
+      },
+      {
+        lastActiveDate: 'desc',
+      },
+    ];
 
     return await prisma.ecoPoints.findMany({
       orderBy,
+      include: {
+        user: {
+          select: {
+            fullName: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
     });
   };
 }

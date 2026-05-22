@@ -4,80 +4,59 @@ import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type AiService from '../../services/ai-service.ts';
+import { handleTransaction } from '../../services/prisma-transaction.ts';
 import type StorageService from '../../services/storage-service.ts';
 import { storageConfig } from '../../services/storage-service.ts';
+import type UserRepository from '../users/user-repository.ts';
 import type WasteCategoriesRepository from '../waste-categories/waste-categories-repository.ts';
 import type ScanHistoryRepository from './scan-history-repository.ts';
+import type { ProcessScanHistoryType } from './scan-history-type.ts';
 
 export default class ScanHistoryService {
   private scanHistoryRepository: ScanHistoryRepository;
+  private wasteCategoriesRepository: WasteCategoriesRepository;
+  private userRepository: UserRepository;
   private aiService: AiService;
   private storageService: StorageService;
-  private wasteCategoriesRepository: WasteCategoriesRepository;
   private cache: CacheService;
   private serviceName: string;
 
   constructor(
     scanHistoryRepository: ScanHistoryRepository,
+    wasteCategoriesRepository: WasteCategoriesRepository,
+    userRepository: UserRepository,
     aiService: AiService,
     storageService: StorageService,
-    wasteCategoriesRepository: WasteCategoriesRepository,
     cache: CacheService,
   ) {
     this.scanHistoryRepository = scanHistoryRepository;
+    this.wasteCategoriesRepository = wasteCategoriesRepository;
+    this.userRepository = userRepository;
     this.aiService = aiService;
     this.storageService = storageService;
-    this.wasteCategoriesRepository = wasteCategoriesRepository;
     this.cache = cache;
     this.serviceName = '[Scan History Service]';
   }
 
-  processUserScan = async (user: Users, file: Express.Multer.File) => {
+  private processScanAndUpload = async (
+    userAiToken: number,
+    file: Express.Multer.File,
+  ) => {
     let uploadedFileUrl: string | undefined;
 
     try {
-      logger.info(`${this.serviceName} processing user scan`);
-
-      const [uploadResult, { data: aiResponse }] = await Promise.all([
+      const [uploadResult, responsePredictModel] = await Promise.all([
         this.storageService.uploadImageToSupabase(
           file,
           storageConfig.bucketName,
           storageConfig.scannedMedia,
         ),
-        this.aiService.classifyImage(file),
+        this.aiService.classifyImage(file, userAiToken),
       ]);
 
       uploadedFileUrl = uploadResult.publicUrl;
 
-      const wasteCategory =
-        await this.wasteCategoriesRepository.getCategoriesByCode(
-          aiResponse.prediction.toUpperCase(),
-        );
-
-      if (!wasteCategory?.id) {
-        throw ErrorFactory.clientError(
-          `Category '${aiResponse.prediction}' not found`,
-          404,
-        );
-      }
-
-      const scanData = {
-        userId: user.id,
-        categoryId: wasteCategory.id,
-        imageUrl: uploadedFileUrl,
-        confidenceScore: aiResponse.confidence,
-        rawPredictions: aiResponse.all_probabilities,
-        pointEarned: wasteCategory.pointsReward || 0,
-        scannedAt: new Date(),
-      };
-
-      const scanHistory = await this.scanHistoryRepository.createScan(scanData);
-
-      await this.cache.del(cacheKey.scanHistory(user.id));
-
-      logger.info(`${this.serviceName}: scan history created successfully`);
-
-      return { scanHistory, message: aiResponse.message };
+      return { responsePredictModel, uploadedFileUrl };
     } catch (error) {
       if (uploadedFileUrl) {
         this.storageService
@@ -90,7 +69,111 @@ export default class ScanHistoryService {
           });
       }
 
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      return ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  processScanImage = async ({ user, file }: ProcessScanHistoryType) => {
+    try {
+      logger.info(`${this.serviceName}: processing user scan`);
+
+      if (user.aiTokens < 0) {
+        logger.warn(
+          `${this.serviceName}: Token user is negative, should not happen`,
+        );
+
+        throw ErrorFactory.clientError('Token is negative', 400);
+      }
+
+      // Proses Scan and Upload Image to Supabase Storage
+      const { uploadedFileUrl, responsePredictModel } =
+        await this.processScanAndUpload(user.aiTokens, file);
+
+      const { aiResult, category, scanHistory, tokenUserRemaining } =
+        await handleTransaction(async (tx) => {
+          const updatedTokenUser = await this.userRepository.updateTokenUser(
+            {
+              aiTokens: user.aiTokens,
+              id: user.id,
+            },
+            tx,
+          );
+
+          logger.debug(
+            `${this.serviceName}: User ${updatedTokenUser.id} token update ${updatedTokenUser.aiTokens}`,
+          );
+
+          const wasteCategory =
+            await this.wasteCategoriesRepository.getCategoriesByCode(
+              responsePredictModel.label.toUpperCase(),
+            );
+
+          logger.debug(
+            `${this.serviceName}: Waste category ${wasteCategory?.categoryCode} `,
+          );
+
+          if (!wasteCategory) {
+            logger.warn(
+              `${this.serviceName}: Category '${responsePredictModel.label}' not found`,
+            );
+
+            throw ErrorFactory.clientError(
+              `Category '${responsePredictModel.label}' not found`,
+              404,
+            );
+          }
+
+          const scanHistory = await this.scanHistoryRepository.createScan(
+            {
+              userId: user.id,
+              categoryId: wasteCategory.id,
+              imageUrl: uploadedFileUrl,
+              confidenceScore: responsePredictModel.confidence,
+              rawPredictions: responsePredictModel.all_scores,
+              pointEarned: wasteCategory.pointsReward,
+              scannedAt: new Date(),
+            },
+            tx,
+          );
+
+          if (!scanHistory) {
+            throw ErrorFactory.clientError('Failed to create scan history');
+          }
+
+          return {
+            scanHistory,
+            tokenUserRemaining: {
+              id: updatedTokenUser.id,
+              username: user.username,
+              aiToken: updatedTokenUser.aiTokens,
+            },
+            category: {
+              category: wasteCategory.categoryCode,
+              points: wasteCategory.pointsReward,
+            },
+            aiResult: {
+              labelAi: responsePredictModel.label,
+              tips: responsePredictModel.tips_daur_ulang,
+              latency: responsePredictModel.latency_ms,
+            },
+          };
+        });
+
+      await Promise.all([
+        this.cache.del(cacheKey.scanHistory(user.id)),
+        this.cache.del(cacheKey.userSession(user.id)),
+      ]);
+
+      logger.info(`${this.serviceName}: scan history created successfully`);
+
+      return {
+        scanHistory,
+        tokenUserRemaining,
+        category,
+        aiResult,
+      };
+    } catch (error) {
+      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -116,7 +199,7 @@ export default class ScanHistoryService {
 
       return { scanHistory, fromCache: false };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -139,7 +222,7 @@ export default class ScanHistoryService {
 
       return scanHistory;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 }
