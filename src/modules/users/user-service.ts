@@ -201,7 +201,7 @@ export default class UserService {
     try {
       logger.info(`${this.serviceName}: Deleting user ${id}`);
 
-      const user = await this.userRepository.deleteUser(id);
+      const [user] = await this.userRepository.deleteUser(id);
 
       if (!user) {
         throw ErrorFactory.notFoundError('User not found');

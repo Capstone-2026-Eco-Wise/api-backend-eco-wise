@@ -1,5 +1,6 @@
 import type { Prisma } from '../../../generated/prisma/client.ts';
 import { prisma } from '../../infrastructure/database/prisma-client.ts';
+import { supabase } from '../../infrastructure/database/supabase.ts';
 import type { TransactionClient } from '../../types/transaction-type.ts';
 import type {
   QueryParamUserType,
@@ -141,10 +142,13 @@ export default class UserRepository {
   };
 
   deleteUser = async (id: string) => {
-    return await prisma.users.delete({
-      where: {
-        id,
-      },
-    });
+    return await Promise.all([
+      prisma.users.delete({
+        where: {
+          id,
+        },
+      }),
+      supabase.auth.admin.deleteUser(id),
+    ]);
   };
 }
