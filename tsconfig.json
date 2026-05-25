@@ -26,7 +26,7 @@
 
     // Other Outputs
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     // "declarationMap": true,
 
     // Stricter Typechecking Options
