@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon --exec tsx ./src/server.ts",
     "build": "tsc",
-    "start": "set \"NODE_ENV=production\" && node ./dist/src/server.js",
+    "start": "NODE_ENV=production node ./dist/src/server.js",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
