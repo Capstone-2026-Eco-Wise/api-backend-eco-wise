@@ -1,7 +1,7 @@
-import type { Users } from '../../../generated/prisma/client.ts';
+import type { users } from '../../../generated/prisma/client.ts';
 
 export type ProcessScanHistoryType = {
-  user: Users;
+  user: users;
   file: Express.Multer.File;
 };
 

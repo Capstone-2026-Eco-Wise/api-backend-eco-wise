@@ -1,4 +1,4 @@
-import type { Users } from '../../../generated/prisma/client.ts';
+import type { users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
@@ -103,7 +103,7 @@ export default class FaqsService {
     }
   };
 
-  getFAQSByCreator = async (user: Users) => {
+  getFAQSByCreator = async (user: users) => {
     try {
       logger.info(`${this.serviceName}: Getting FAQs by creator`);
 

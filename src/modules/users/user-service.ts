@@ -1,4 +1,4 @@
-import type { Users } from '../../../generated/prisma/client.ts';
+import type { users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
@@ -8,6 +8,7 @@ import { storageConfig } from '../../services/storage-service.ts';
 import type UserRepository from './user-repository.ts';
 import type {
   QueryParamUserType,
+  ResetTokenUserType,
   UpdateProfileUserType,
   UpdateRoleUserType,
   UserUpdateAvatarType,
@@ -40,7 +41,7 @@ export default class UserService {
     ]);
   };
 
-  sessionUser = async (user: Users) => {
+  sessionUser = async (user: users) => {
     try {
       logger.info(`${this.serviceName}: Getting session user for ${user.id}`);
 
@@ -192,6 +193,33 @@ export default class UserService {
       await this.cache.del(cacheKey.userSession(id));
 
       return updateRole;
+    } catch (error) {
+      ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  resetTokenUser = async ({ id, nextReset }: ResetTokenUserType) => {
+    try {
+      logger.info(`${this.serviceName}: Resetting token for user ${id}`);
+
+      const resetTokenUser = await this.userRepository.userResetToken({
+        id,
+        nextReset,
+      });
+
+      if (!resetTokenUser) {
+        logger.warn(`${this.serviceName}: Reset token failed for user ${id}`);
+
+        throw ErrorFactory.clientError('Failed to reset token');
+      }
+
+      logger.info(
+        `${this.serviceName}: Reset token successfully for user ${id}`,
+      );
+
+      await this.cache.set(cacheKey.userSession(id), resetTokenUser, 60 * 15);
+
+      return resetTokenUser;
     } catch (error) {
       ErrorFactory.handlerServiceError(error, this.serviceName);
     }

@@ -1,4 +1,4 @@
-import type { Users } from '../../../generated/prisma/client.ts';
+import type { users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import { handleTransaction } from '../../services/prisma-transaction.ts';
@@ -28,7 +28,7 @@ export default class UserTaskCompletionsService {
   }
 
   userCompletedTask = async (
-    user: Users,
+    user: users,
     file: Express.Multer.File,
     taskId: string,
   ) => {

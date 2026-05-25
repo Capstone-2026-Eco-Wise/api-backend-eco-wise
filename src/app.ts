@@ -1,5 +1,9 @@
 import cors from 'cors';
-import express, { type Application, type Response } from 'express';
+import express, {
+  type Application,
+  type Request,
+  type Response,
+} from 'express';
 import helmet from 'helmet';
 import {
   endpointNotFoundHandler,
@@ -29,7 +33,7 @@ class App {
   };
 
   private initializeRoutes = (): void => {
-    this.app.get('/', (_, res: Response) => {
+    this.app.get('/', (req: Request, res: Response) => {
       res.redirect('/api');
     });
     this.app.use('/api', router);

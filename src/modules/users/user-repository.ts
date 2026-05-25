@@ -4,6 +4,7 @@ import { supabase } from '../../infrastructure/database/supabase.ts';
 import type { TransactionClient } from '../../types/transaction-type.ts';
 import type {
   QueryParamUserType,
+  ResetTokenUserType,
   UpdateAvatarUserType,
   UpdateProfileUserType,
   UpdateRoleUserType,
@@ -18,7 +19,7 @@ export default class UserRepository {
     role,
     search,
   }: QueryParamUserType) => {
-    const where: Prisma.UsersWhereInput = {
+    const where: Prisma.usersWhereInput = {
       ...(id && { id: { not: id } }),
       ...(role !== undefined && { role }),
       ...(search && {
@@ -29,7 +30,7 @@ export default class UserRepository {
         ],
       }),
     };
-    const include: Prisma.UsersInclude = {
+    const include: Prisma.usersInclude = {
       ecoPoints: {
         select: {
           totalPoints: true,
@@ -96,7 +97,9 @@ export default class UserRepository {
         id,
       },
       data: {
-        aiTokens: aiTokens - 1,
+        aiTokens: {
+          decrement: 1,
+        },
       },
       select: {
         id: true,
@@ -137,6 +140,26 @@ export default class UserRepository {
       },
       data: {
         role,
+      },
+    });
+  };
+
+  userResetToken = async ({ id, nextReset }: ResetTokenUserType) => {
+    return await prisma.users.update({
+      where: { id },
+      data: {
+        aiTokens: 5,
+        tokenResetAt: nextReset,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        email: true,
+        role: true,
+        avatar_url: true,
+        aiTokens: true,
+        tokenResetAt: true,
       },
     });
   };

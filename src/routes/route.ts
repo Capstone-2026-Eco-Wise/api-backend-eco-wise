@@ -1,4 +1,4 @@
-import { Router, type Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 import authRoute from '../modules/auth/auth-route.ts';
 import dailyTasksRoute from '../modules/daily-tasks/daily-tasks-route.ts';
 import ecoPointsRoute from '../modules/eco-points/eco-points-route.ts';
@@ -33,7 +33,7 @@ class MainRouter {
   };
 
   private healthRoute = (): void => {
-    this.router.get('/', (_, res: Response) => {
+    this.router.get('/', (req: Request, res: Response) => {
       res.status(200).json({
         status: 'OK',
         message: 'Eco-Wise API is running!',

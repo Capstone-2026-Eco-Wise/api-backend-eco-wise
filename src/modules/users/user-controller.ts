@@ -12,7 +12,7 @@ export default class UserController {
 
   session = async (req: Request, res: Response) => {
     if (!req.user) {
-      return ResponseServer.error(res, 401, 'Session not found');
+      return ResponseServer.error(res, 401, 'Please login first');
     }
 
     const { user, fromCache } = await this.userService.sessionUser(req.user);
@@ -20,7 +20,7 @@ export default class UserController {
     return ResponseServer.success(
       res,
       200,
-      `User successfully retrieved${fromCache ? ' from cache' : ''}`,
+      `Session user successfully`,
       user,
       fromCache,
     );

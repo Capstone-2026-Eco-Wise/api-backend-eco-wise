@@ -6,6 +6,7 @@ import { logger } from '../infrastructure/logger/logger.ts';
 import { container } from '../utils/container.ts';
 import { env } from '../utils/env.ts';
 import ResponseServer from '../utils/response-server.ts';
+import { checkAndResetUserTokens } from '../utils/token-reset-helper.ts';
 
 const helperMiddleware = {
   USER_SESSION_CACHE_TTL: 60 * 15,
@@ -79,6 +80,7 @@ export const authMiddleware = async (
           role: true,
           avatar_url: true,
           aiTokens: true,
+          tokenResetAt: true,
         },
       });
 
@@ -95,6 +97,8 @@ export const authMiddleware = async (
         helperMiddleware.USER_SESSION_CACHE_TTL,
       );
     }
+
+    dbUser = await checkAndResetUserTokens(dbUser);
 
     req.user = dbUser;
 

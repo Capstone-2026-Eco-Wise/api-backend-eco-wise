@@ -1,6 +1,6 @@
-import type { ROLE_USER, Users } from '../../../generated/prisma/client.ts';
+import type { ROLE_USER, users } from '../../../generated/prisma/client.ts';
 
-type UpdateDataUserType = {
+type PayloadDataUsersType = {
   id: string;
   fullName: string;
   role: ROLE_USER;
@@ -10,17 +10,27 @@ type UpdateDataUserType = {
 };
 
 export type UserUpdateAvatarType = {
-  user: Users;
+  user: users;
   file: Express.Multer.File;
 };
 
-export type UpdateTokenUserType = Pick<UpdateDataUserType, 'id' | 'aiTokens'>;
+export type UpdateTokenUserType = Pick<PayloadDataUsersType, 'id' | 'aiTokens'>;
 
-export type UpdateAvatarUserType = Pick<UpdateDataUserType, 'id' | 'avatarUrl'>;
+export type UpdateAvatarUserType = Pick<
+  PayloadDataUsersType,
+  'id' | 'avatarUrl'
+>;
 
-export type UpdateProfileUserType = Pick<UpdateDataUserType, 'id' | 'fullName'>;
+export type UpdateProfileUserType = Pick<
+  PayloadDataUsersType,
+  'id' | 'fullName'
+>;
 
-export type UpdateRoleUserType = Pick<UpdateDataUserType, 'id' | 'role'>;
+export type UpdateRoleUserType = Pick<PayloadDataUsersType, 'id' | 'role'>;
+
+export type ResetTokenUserType = Pick<PayloadDataUsersType, 'id'> & {
+  nextReset: Date;
+};
 
 export type QueryParamUserType = {
   id: string;

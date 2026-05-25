@@ -1,4 +1,4 @@
-import type { Users } from '../../../generated/prisma/client.ts';
+import type { users } from '../../../generated/prisma/client.ts';
 import { ErrorFactory } from '../../errors/error-factory.ts';
 import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
 import type CacheService from '../../infrastructure/cache/cache-service.ts';
@@ -168,7 +168,7 @@ export default class AuthService {
     }
   };
 
-  authSignOut = async (user: Users, accessToken: string) => {
+  authSignOut = async (user: users, accessToken: string) => {
     try {
       logger.info(`${this.serviceName}: User sign out`);
 

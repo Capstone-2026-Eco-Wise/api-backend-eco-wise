@@ -25,7 +25,7 @@ enum FAQ_CATEGORY {
   scan
 }
 
-model Users {
+model users {
   id           String    @id @default(uuid()) @db.Uuid
   fullName     String    @map("full_name") @db.VarChar(100)
   username     String    @unique @db.VarChar(50)
@@ -58,8 +58,8 @@ model faqs {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp
 
-  creator Users? @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: SetNull)
-  editor  Users? @relation("FaqEditor", fields: [updatedBy], references: [id], onDelete: SetNull)
+  creator users? @relation("FaqCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  editor  users? @relation("FaqEditor", fields: [updatedBy], references: [id], onDelete: SetNull)
 
   @@map("faqs")
 }
@@ -89,7 +89,7 @@ model ecoPoints {
   longestStreak  Int      @default(0) @map("longest_streak") @db.Integer
   lastActiveDate DateTime @default(now()) @map("last_active_date") @db.Date
 
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("eco_points")
 }
@@ -104,7 +104,7 @@ model scanHistory {
   pointEarned     Int      @map("point_earned")
   scannedAt       DateTime @default(now()) @map("scanned_at") @db.Timestamp
 
-  user     Users           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     users           @relation(fields: [userId], references: [id], onDelete: Cascade)
   category wasteCategories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@index([scannedAt])
@@ -137,7 +137,7 @@ model userTaskCompletions {
   isCompleted  Boolean  @default(false) @map("is_completed") @db.Boolean
   completedAt  DateTime @default(now()) @map("completed_at") @db.Timestamp
 
-  user Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user users      @relation(fields: [userId], references: [id], onDelete: Cascade)
   task dailyTasks @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@index([taskDate])
