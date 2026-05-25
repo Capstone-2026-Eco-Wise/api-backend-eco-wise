@@ -10,6 +10,7 @@ export default class RedisClient {
   constructor() {
     this.client = createClient({
       url: env.REDIS_URL as string,
+      pingInterval: 0,
     });
 
     this.client.on('error', (error) => {
