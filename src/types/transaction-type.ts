@@ -1,3 +1,2 @@
-import type { Prisma } from '../../generated/prisma/client.ts';
-
-export type TransactionClient = Prisma.TransactionClient;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TransactionClient = any;
