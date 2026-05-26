@@ -37,7 +37,7 @@ export default class StatisticsService {
       );
       return { stats, fromCache: false };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

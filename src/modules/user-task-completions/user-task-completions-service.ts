@@ -126,7 +126,7 @@ export default class UserTaskCompletionsService {
         completedTask,
       };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

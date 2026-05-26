@@ -1,4 +1,6 @@
 import { ErrorFactory } from '../../errors/error-factory.ts';
+import { cacheKey } from '../../infrastructure/cache/cache-key.ts';
+import type CacheService from '../../infrastructure/cache/cache-service.ts';
 import { logger } from '../../infrastructure/logger/logger.ts';
 import type DailyTasksRepository from './daily-tasks-repository.ts';
 import type {
@@ -10,10 +12,12 @@ import type {
 
 export default class DailyTasksService {
   private dailyTasksRepository: DailyTasksRepository;
+  private cache: CacheService;
   private serviceName: string;
 
-  constructor(dailyTasksRepository: DailyTasksRepository) {
+  constructor(dailyTasksRepository: DailyTasksRepository, cache: CacheService) {
     this.dailyTasksRepository = dailyTasksRepository;
+    this.cache = cache;
     this.serviceName = '[Daily Tasks Service]';
   }
 
@@ -41,13 +45,15 @@ export default class DailyTasksService {
         throw ErrorFactory.clientError('Failed to create master tasks');
       }
 
+      await this.cache.del(cacheKey.dashboardStats());
+
       logger.info(
         `${this.serviceName}: Successfully created master tasks with ID: ${dailyTasks.id}`,
       );
 
       return dailyTasks;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -82,7 +88,7 @@ export default class DailyTasksService {
 
       return dailyTasks;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -106,7 +112,7 @@ export default class DailyTasksService {
 
       return dailyTasks;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -146,7 +152,7 @@ export default class DailyTasksService {
 
       return dailyTasks;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -164,13 +170,15 @@ export default class DailyTasksService {
         throw ErrorFactory.notFoundError('Daily tasks not found');
       }
 
+      await this.cache.del(cacheKey.dashboardStats());
+
       logger.info(
         `${this.serviceName}: Successfully deleted daily tasks with ID: ${dailyTasks.id}`,
       );
 
       return dailyTasks;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

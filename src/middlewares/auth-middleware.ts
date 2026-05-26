@@ -60,11 +60,7 @@ export const authMiddleware = async (
         `${helperMiddleware.middlewareName}: Invalid or expired token ${(err as Error).message}`,
       );
 
-      return ResponseServer.error(
-        res,
-        401,
-        'Unauthenticated, please login. asdas',
-      );
+      return ResponseServer.error(res, 401, 'Unauthenticated, please login.');
     }
 
     let dbUser = await container.cacheService.get(cacheKey.userSession(userId));

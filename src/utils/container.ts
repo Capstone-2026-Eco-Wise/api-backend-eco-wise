@@ -53,7 +53,10 @@ const wasteCategoriesService = new WasteCategoriesService(
   wasteCategoriesRepository,
   cacheService,
 );
-const dailyTasksService = new DailyTasksService(dailyTasksRepository);
+const dailyTasksService = new DailyTasksService(
+  dailyTasksRepository,
+  cacheService,
+);
 const scanHistoryService = new ScanHistoryService(
   scanHistoryRepository,
   wasteCategoriesRepository,

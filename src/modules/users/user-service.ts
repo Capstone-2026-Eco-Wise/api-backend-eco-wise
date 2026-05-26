@@ -61,7 +61,7 @@ export default class UserService {
 
       return { user, fromCache: false };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -93,7 +93,7 @@ export default class UserService {
 
       return users;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -142,7 +142,7 @@ export default class UserService {
           .catch((err) => logger.error(`[Cleanup Error]: ${err.message}`));
       }
 
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -163,7 +163,7 @@ export default class UserService {
 
       return updateProfile;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -194,7 +194,7 @@ export default class UserService {
 
       return updateRole;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -221,7 +221,7 @@ export default class UserService {
 
       return resetTokenUser;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -237,11 +237,13 @@ export default class UserService {
 
       await this.cleanUpCacheUser(id);
 
+      await this.cache.del(cacheKey.dashboardStats());
+
       logger.info(`${this.serviceName}: Delete user successfully ${id}`);
 
       return user;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

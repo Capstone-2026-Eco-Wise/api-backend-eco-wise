@@ -62,13 +62,15 @@ export default class AuthService {
         throw ErrorFactory.clientError('Error creating default point for user');
       }
 
+      await this.cache.del(cacheKey.dashboardStats());
+
       logger.info(
         `${this.serviceName}: User signed up successfully for ${email}`,
       );
 
       return { ...authSignUp, ecoPoints };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -94,7 +96,7 @@ export default class AuthService {
 
       return authSignIn;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -164,7 +166,7 @@ export default class AuthService {
 
       return newSession;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -198,7 +200,7 @@ export default class AuthService {
         message: 'User has been signed out',
       };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 }

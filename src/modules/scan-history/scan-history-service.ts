@@ -38,6 +38,12 @@ export default class ScanHistoryService {
     this.serviceName = '[Scan History Service]';
   }
 
+  /**
+   ** Scan Image and upload image to supabase
+   * @param userAiToken - User AI token
+   * @param file - Image file
+   * @returns Response predict model and uploaded file URL
+   */
   private processScanAndUpload = async (
     userAiToken: number,
     file: Express.Multer.File,
@@ -69,7 +75,74 @@ export default class ScanHistoryService {
           });
       }
 
-      return ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  scanUserWithOutDailyTask = async ({ user, file }: ProcessScanHistoryType) => {
+    try {
+      logger.info(`${this.serviceName}: processing scan`);
+
+      const { aiResult, category, scanHistory } = await handleTransaction(
+        async (tx) => {
+          const { responsePredictModel, uploadedFileUrl } =
+            await this.processScanAndUpload(0, file);
+
+          const wasteCategory =
+            await this.wasteCategoriesRepository.getCategoriesByCode(
+              responsePredictModel.label,
+            );
+
+          if (!wasteCategory) {
+            logger.warn(
+              `${this.serviceName}: Category '${responsePredictModel.label}' not found`,
+            );
+
+            throw ErrorFactory.clientError(
+              `Category '${responsePredictModel.label}' not found`,
+              404,
+            );
+          }
+
+          const scanHistory = await this.scanHistoryRepository.createScan(
+            {
+              userId: user.id,
+              categoryId: wasteCategory.id,
+              imageUrl: uploadedFileUrl,
+              confidenceScore: responsePredictModel.confidence,
+              rawPredictions: responsePredictModel.all_scores,
+              pointEarned: 0,
+              scannedAt: new Date(),
+            },
+            tx,
+          );
+
+          if (!scanHistory) {
+            throw ErrorFactory.clientError('Failed to create scan history');
+          }
+
+          return {
+            scanHistory,
+            category: {
+              category: wasteCategory.categoryCode,
+              points: wasteCategory.pointsReward,
+            },
+            aiResult: {
+              labelAi: responsePredictModel.label,
+              tips: responsePredictModel.tips_daur_ulang,
+              latency: responsePredictModel.latency_ms,
+            },
+          };
+        },
+      );
+
+      return {
+        aiResult,
+        category,
+        scanHistory,
+      };
+    } catch (error) {
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -85,10 +158,11 @@ export default class ScanHistoryService {
         throw ErrorFactory.clientError('Token is negative', 400);
       }
 
-      // Proses Scan and Upload Image to Supabase Storage
+      //* Proses Scan and Upload Image to Supabase Storage
       const { uploadedFileUrl, responsePredictModel } =
         await this.processScanAndUpload(user.aiTokens, file);
 
+      //* Process transaction data to database (update token, get category code, add scan history)
       const { aiResult, category, scanHistory, tokenUserRemaining } =
         await handleTransaction(async (tx) => {
           const updatedTokenUser = await this.userRepository.updateTokenUser(
@@ -105,7 +179,7 @@ export default class ScanHistoryService {
 
           const wasteCategory =
             await this.wasteCategoriesRepository.getCategoriesByCode(
-              responsePredictModel.label.toUpperCase(),
+              responsePredictModel.label,
             );
 
           logger.debug(
@@ -162,6 +236,7 @@ export default class ScanHistoryService {
       await Promise.all([
         this.cache.del(cacheKey.scanHistory(user.id)),
         this.cache.del(cacheKey.userSession(user.id)),
+        this.cache.del(cacheKey.dashboardStats()),
       ]);
 
       logger.info(`${this.serviceName}: scan history created successfully`);
@@ -173,7 +248,7 @@ export default class ScanHistoryService {
         aiResult,
       };
     } catch (error) {
-      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -199,7 +274,7 @@ export default class ScanHistoryService {
 
       return { scanHistory, fromCache: false };
     } catch (error) {
-      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 
@@ -222,7 +297,7 @@ export default class ScanHistoryService {
 
       return scanHistory;
     } catch (error) {
-      return ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };
 }

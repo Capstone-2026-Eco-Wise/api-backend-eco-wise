@@ -90,8 +90,10 @@ export default class WasteCategoriesRepository {
   };
 
   getCategoriesByCode = async (categoryCode: string) => {
+    const code: string = categoryCode.toUpperCase();
+
     return await prisma.wasteCategories.findUnique({
-      where: { categoryCode },
+      where: { categoryCode: code },
     });
   };
 }

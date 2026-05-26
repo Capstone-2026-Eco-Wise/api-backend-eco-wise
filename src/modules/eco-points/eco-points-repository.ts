@@ -86,6 +86,11 @@ export default class EcoPointsRepository {
     ];
 
     return await prisma.ecoPoints.findMany({
+      where: {
+        user: {
+          role: 'user',
+        },
+      },
       orderBy,
       include: {
         user: {

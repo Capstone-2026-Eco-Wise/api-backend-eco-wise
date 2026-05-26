@@ -57,7 +57,7 @@ export default class AiService {
         }
       }
 
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -85,7 +85,7 @@ export default class AiService {
         }
       }
 
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

@@ -63,12 +63,13 @@ export default class WasteCategoriesService {
       }
 
       await this.cache.del(cacheKey.wasteCategories());
+      await this.cache.del(cacheKey.dashboardStats());
 
       logger.info(`${this.serviceName}: End create waste category`);
 
       return resultCreate;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -100,7 +101,7 @@ export default class WasteCategoriesService {
 
       return { wasteCategories, fromCache: false };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -121,7 +122,7 @@ export default class WasteCategoriesService {
 
       return wasteCategoryById;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -151,7 +152,7 @@ export default class WasteCategoriesService {
 
       return wasteCategoryUpdate;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -167,12 +168,13 @@ export default class WasteCategoriesService {
       }
 
       await this.cache.del(cacheKey.wasteCategories());
+      await this.cache.del(cacheKey.dashboardStats());
 
       logger.info(`${this.serviceName}: End delete waste category`);
 
       return wasteCategoryDelete;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

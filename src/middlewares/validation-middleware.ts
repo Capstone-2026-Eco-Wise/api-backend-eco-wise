@@ -6,7 +6,7 @@ import { paramsValidation } from '../validations/params-validation.ts';
 
 type RequestLocation = 'body' | 'params' | 'query';
 
-function fromateMessage(message: string) {
+function formateMessage(message: string) {
   const parsed = JSON.parse(message);
 
   if (Array.isArray(parsed)) {
@@ -31,7 +31,7 @@ const createValidationMiddleware = (
     const parsed = schema.safeParse(req[location]);
 
     if (!parsed.success) {
-      const formattedMessage = fromateMessage(parsed.error.message);
+      const formattedMessage = formateMessage(parsed.error.message);
 
       logger.error(`[Validation Middleware]: ${formattedMessage}`);
 

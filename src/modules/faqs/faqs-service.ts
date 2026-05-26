@@ -46,14 +46,17 @@ export default class FaqsService {
         throw ErrorFactory.clientError('Failed to create FAQ');
       }
 
-      await this.cache.del(cacheKey.faqsPublic());
-      await this.cache.del(cacheKey.faqsByCreator(createdBy as string));
+      await Promise.all([
+        this.cache.del(cacheKey.faqsPublic()),
+        this.cache.del(cacheKey.faqsByCreator(createdBy as string)),
+        this.cache.del(cacheKey.dashboardStats()),
+      ]);
 
       logger.info(`${this.serviceName}: FAQ created successfully`);
 
       return faqs;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -99,7 +102,7 @@ export default class FaqsService {
         fromCache: false,
       };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -141,7 +144,7 @@ export default class FaqsService {
         fromCache: false,
       };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -171,7 +174,7 @@ export default class FaqsService {
 
       return faqs;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -197,14 +200,17 @@ export default class FaqsService {
         throw ErrorFactory.notFoundError('FAQ not found');
       }
 
-      await this.cache.del(cacheKey.faqsPublic());
-      await this.cache.del(cacheKey.faqsByCreator(createdBy as string));
+      await Promise.all([
+        this.cache.del(cacheKey.faqsPublic()),
+        this.cache.del(cacheKey.faqsByCreator(createdBy as string)),
+        this.cache.del(cacheKey.dashboardStats()),
+      ]);
 
       logger.info(`${this.serviceName}: FAQ deleted successfully`);
 
       return faq;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 }

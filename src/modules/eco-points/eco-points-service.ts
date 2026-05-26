@@ -129,7 +129,7 @@ export default class EcoPointsService {
 
       return ecoPointsData;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -168,7 +168,7 @@ export default class EcoPointsService {
         ecoPointsUser.currentStreak,
       );
 
-      const resposePoints = {
+      const responseEcoPoints = {
         diffDays,
         status,
         message,
@@ -178,15 +178,15 @@ export default class EcoPointsService {
         lastActiveDate: ecoPointsUser.lastActiveDate,
       };
 
-      await this.cache.set(cacheKey.ecoPoints(userId), resposePoints);
+      await this.cache.set(cacheKey.ecoPoints(userId), responseEcoPoints);
 
       logger.info(
         `${this.serviceName}: Streak status retrieved successfully for user ${userId}`,
       );
 
-      return { ecoPoints: resposePoints, fromCache: false };
+      return { ecoPoints: responseEcoPoints, fromCache: false };
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
@@ -203,7 +203,7 @@ export default class EcoPointsService {
 
       return leaderboard;
     } catch (error) {
-      ErrorFactory.handlerServiceError(error, this.serviceName);
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
   };
 
