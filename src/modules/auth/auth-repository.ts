@@ -26,7 +26,7 @@ export default class AuthRepository {
     username,
     password,
   }: AuthSignUpType) => {
-    const { data } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -37,19 +37,16 @@ export default class AuthRepository {
       },
     });
 
-    const userPrisma = await prisma.users.create({
-      data: {
-        id: data?.user?.id as string,
-        email: data?.user?.email as string,
-        fullName: data?.user?.user_metadata.full_name as string,
-        username: data?.user?.user_metadata.username as string,
-        role: 'admin',
-        aiTokens: 0,
-        tokenResetAt: new Date(data?.user?.created_at as string),
-      },
+    if (error || !data.user) {
+      throw error ?? new Error('Failed to create admin in Supabase Auth');
+    }
+
+    const userPrisma = await prisma.users.update({
+      where: { id: data.user.id },
+      data: { role: 'admin' },
     });
 
-    return userPrisma;
+    return { user: userPrisma, session: data.session };
   };
 
   signIn = async ({ email, password }: AuthSignInType) => {

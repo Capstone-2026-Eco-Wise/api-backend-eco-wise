@@ -101,5 +101,6 @@ Thumbs.db
 # DOCUMENTATION
 # ======================
 *.md
-!README.md
-!docker.md
+!docs/README.md
+!docs/docker.md
+!docs/api-docs/*.md

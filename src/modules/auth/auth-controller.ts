@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { env } from '../../utils/env.ts';
 import ResponseServer from '../../utils/response-server.ts';
 import type AuthService from './auth-service.ts';
 
@@ -69,6 +70,23 @@ export default class AuthController {
       200,
       'Password updated successfully',
       session,
+    );
+  };
+
+  signUpAdmin = async (req: Request, res: Response) => {
+    const { adminSecret, ...userData } = req.body;
+
+    if (adminSecret !== env.ADMIN_SECRET_KEY) {
+      return ResponseServer.error(res, 403, 'Invalid admin secret key');
+    }
+
+    const adminUser = await this.authService.authSignUpAdmin(userData);
+
+    return ResponseServer.success(
+      res,
+      201,
+      'Admin registered successfully',
+      adminUser,
     );
   };
 }

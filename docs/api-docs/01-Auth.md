@@ -166,3 +166,52 @@ Endpoint untuk mengganti password user yang sedang login.
   "data": null
 }
 ```
+
+---
+
+## 5. Register Admin
+
+Endpoint untuk mendaftarkan user baru dengan role admin. Memerlukan secret key yang valid.
+
+**URL:** `/sign-up/admin`
+**Method:** `POST`
+**Auth Required:** No
+**Rate Limit:** 5 request per 15 menit per IP.
+
+### Request Body
+```json
+{
+  "email": "admin@example.com",
+  "fullName": "Admin User",
+  "username": "admin123",
+  "password": "StrongPassword123!",
+  "adminSecret": "kode-rahasia-dari-env"
+}
+```
+
+### Success Response (201 Created)
+```json
+{
+  "status": 201,
+  "message": "Admin registered successfully",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "email": "admin@example.com"
+    },
+    "session": {
+      "access_token": "jwt-token",
+      "refresh_token": "jwt-refresh-token"
+    }
+  }
+}
+```
+
+### Error Response (403 Forbidden)
+```json
+{
+  "status": 403,
+  "message": "Invalid admin secret key",
+  "data": null
+}
+```

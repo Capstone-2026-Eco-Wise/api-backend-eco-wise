@@ -6,6 +6,7 @@ import { container } from '../../utils/container.ts';
 import AuthController from './auth-controller.ts';
 import {
   signInValidation,
+  signUpAdminValidation,
   signUpValidation,
   updatePasswordValidation,
 } from './auth-validation.ts';
@@ -26,6 +27,12 @@ class AuthRoute {
       authLimiter,
       validateSchema(signUpValidation),
       this.authController.signUp,
+    );
+    this.authRoute.post(
+      '/sign-up/admin',
+      authLimiter,
+      validateSchema(signUpAdminValidation),
+      this.authController.signUpAdmin,
     );
     this.authRoute.post(
       '/sign-in',

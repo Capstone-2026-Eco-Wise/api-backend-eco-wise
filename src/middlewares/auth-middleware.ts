@@ -39,6 +39,15 @@ export const authMiddleware = async (
       return ResponseServer.error(res, 401, 'Unauthorized. Please log in.');
     }
 
+    const isBlacklisted = await container.cacheService.get(
+      cacheKey.blacklistedToken(token),
+    );
+
+    if (isBlacklisted) {
+      logger.warn(`${helperMiddleware.middlewareName}: Token is blacklisted`);
+      return ResponseServer.error(res, 401, 'Unauthorized. Please log in.');
+    }
+
     let userId: string;
 
     try {

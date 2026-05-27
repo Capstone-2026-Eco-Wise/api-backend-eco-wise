@@ -14,6 +14,10 @@ export const signUpValidation = z.object({
   password: passwordSchema,
 });
 
+export const signUpAdminValidation = signUpValidation.extend({
+  adminSecret: z.string().min(1, 'Admin secret is required'),
+});
+
 export const signInValidation = z.object({
   email: z.email('Invalid email address'),
   password: passwordSchema,

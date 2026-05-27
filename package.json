@@ -8,14 +8,17 @@
   "main": "dist/src/server.js",
   "scripts": {
     "dev": "nodemon --exec tsx ./src/server.ts",
+    "dev:staging": "dotenv -e .env.staging -- nodemon --exec tsx ./src/server.ts",
     "build": "prisma generate && tsc",
     "start": "NODE_ENV=production node ./dist/src/server.js",
     "db:push": "prisma db push",
+    "db:push:staging": "dotenv -e .env.staging -- prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev",
-    "lint": "tsc --noEmit && eslint .",
-    "db:migrate:reset": "prisma migrate reset"
+    "db:migrate:reset": "prisma migrate reset",
+    "db:migrate:reset:staging": "dotenv -e .env.staging -- prisma migrate reset",
+    "lint": "tsc --noEmit && eslint ."
   },
   "dependencies": {
     "@prisma/adapter-pg": "^6.19.3",
@@ -45,6 +48,7 @@
     "@types/node": "^25.9.1",
     "@types/pg": "^8.20.0",
     "dotenv": "^17.4.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^10.2.0",
     "globals": "^17.5.0",
     "jiti": "^2.6.1",

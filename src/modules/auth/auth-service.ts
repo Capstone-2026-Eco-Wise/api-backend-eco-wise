@@ -184,9 +184,10 @@ export default class AuthService {
         );
       }
 
-      // Clean up cache
+      // Clean up cache and add token to blacklist
       logger.info(`[CLEAN UP CACHE]: for user ${user.id}`);
       await Promise.all([
+        this.cache.set(cacheKey.blacklistedToken(accessToken), 'revoked', 24),
         this.cache.del(cacheKey.userSession(user.id)),
         this.cache.del(cacheKey.ecoPoints(user.id)),
         this.cache.del(cacheKey.scanHistory(user.id)),
@@ -199,6 +200,51 @@ export default class AuthService {
         success: true,
         message: 'User has been signed out',
       };
+    } catch (error) {
+      throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
+    }
+  };
+
+  authSignUpAdmin = async ({
+    fullName,
+    email,
+    password,
+    username,
+  }: AuthSignUpType) => {
+    try {
+      logger.info(
+        `${this.serviceName}: Registering new admin with email: ${email}`,
+      );
+
+      const { session, user } = await this.authRepository.signUpRoleAdmin({
+        email,
+        fullName,
+        password,
+        username,
+      });
+
+      if (!session || !user) {
+        throw ErrorFactory.clientError('Failed to register admin');
+      }
+
+      await this.cache.del(cacheKey.dashboardStats());
+
+      logger.info(
+        `${this.serviceName}: Admin registered successfully for ${email}`,
+      );
+
+      const responseAdminSignUp = {
+        user,
+        session: {
+          access_token: session.access_token,
+          token_type: session.token_type,
+          expires_in: session.expires_in,
+          expires_at: session.expires_at,
+          refresh_token: session.refresh_token,
+        },
+      };
+
+      return responseAdminSignUp;
     } catch (error) {
       throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }

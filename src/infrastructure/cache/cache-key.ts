@@ -1,5 +1,6 @@
 export const cacheKey = {
   userSession: (key: string) => `user-session:${key}`,
+  blacklistedToken: (token: string) => `auth:blacklist:${token}`,
   wasteCategories: (key?: string) =>
     key ? `waste-categories:all:${key}` : 'waste-categories:all',
   ecoPoints: (key: string) => `eco-points:user:${key}`,
