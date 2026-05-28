@@ -22,25 +22,28 @@ services:
       retries: 5
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: eco_wise_api
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=staging
       - REDIS_URL=redis://redis:6379/0
       - PORT=3000
       - HOST=0.0.0.0
+      - AI_API_URL=http://host.docker.internal:8000
     env_file:
-      - .env
+      - .env.staging
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - eco_wise_network
-    volumes:
-      - ./src:/app/src
 
 volumes:
   redis_data:
