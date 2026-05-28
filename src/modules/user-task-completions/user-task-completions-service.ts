@@ -69,7 +69,7 @@ export default class UserTaskCompletionsService {
       // ── PHASE 1: External calls (AI + Storage) — tidak bisa di-rollback ──
       // processScanImage melakukan: upload gambar, call AI, simpan scanHistory,
       // dan deduct token user. Ini dilakukan terlebih dahulu sebelum transaksi DB.
-      const { scanHistory, aiResult, tokenUserRemaining } =
+      const { scanHistory, aiResult, tokenUserRemaining, category } =
         await this.scanHistoryService.processScanImage({
           user,
           file,
@@ -121,10 +121,20 @@ export default class UserTaskCompletionsService {
       return {
         scanHistory,
         aiResult,
+        category,
         tokenUserRemaining,
         ecoPoints: ecoPointsUpdated,
         completedTask,
       };
+    } catch (error) {
+      throw ErrorFactory.handlerServiceError(error, this.serviceName);
+    }
+  };
+
+  getUserTaskCompletions = async (user: users) => {
+    try {
+      const completions = await this.userTaskCompletionsRepository.getUserTaskCompletions(user.id);
+      return completions;
     } catch (error) {
       throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }

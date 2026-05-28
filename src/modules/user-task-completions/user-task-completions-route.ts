@@ -27,6 +27,13 @@ class UserTaskCompletionsRoute {
       this.userTaskCompletionsController.create,
     );
 
+    this.userTaskCompletionsRoute.get(
+      '/',
+      authMiddleware,
+      accessControlMiddleware('user'),
+      this.userTaskCompletionsController.getAll,
+    );
+
     return this.userTaskCompletionsRoute;
   };
 }

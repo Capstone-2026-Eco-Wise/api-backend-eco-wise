@@ -34,19 +34,19 @@ export default class AuthService {
     password,
     username,
   }: AuthSignUpType) => {
+    logger.info(
+      `${this.serviceName}: Registering new user with email: ${email}`,
+    );
+
+    const { data: authSignUp, error: errorauthSignUp } =
+      await this.authRepository.signUp({
+        email,
+        fullName,
+        password,
+        username,
+      });
+
     try {
-      logger.info(
-        `${this.serviceName}: Registering new user with email: ${email}`,
-      );
-
-      const { data: authSignUp, error: errorauthSignUp } =
-        await this.authRepository.signUp({
-          email,
-          fullName,
-          password,
-          username,
-        });
-
       if (errorauthSignUp || !authSignUp) {
         throw ErrorFactory.clientError(
           errorauthSignUp?.message as string,
@@ -70,6 +70,9 @@ export default class AuthService {
 
       return { ...authSignUp, ecoPoints };
     } catch (error) {
+      await this.authRepository.deleteUserFromSupabase(
+        authSignUp.user?.id as string,
+      );
       throw ErrorFactory.handlerServiceError(error, `${this.serviceName}`);
     }
   };

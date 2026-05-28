@@ -165,6 +165,14 @@ export default class UserRepository {
   };
 
   deleteUser = async (id: string) => {
+    const userExists = await prisma.users.findUnique({
+      where: { id },
+    });
+
+    if (!userExists) {
+      return [null, null];
+    }
+
     return await Promise.all([
       prisma.users.delete({
         where: {

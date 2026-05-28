@@ -235,6 +235,10 @@ export default class UserService {
         throw ErrorFactory.notFoundError('User not found');
       }
 
+      if (user.avatar_url) {
+        await this.storageService.deleteFileFromSupabase(user.avatar_url);
+      }
+
       await this.cleanUpCacheUser(id);
 
       await this.cache.del(cacheKey.dashboardStats());

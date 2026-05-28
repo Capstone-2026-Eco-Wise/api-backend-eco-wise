@@ -21,7 +21,7 @@ export const prisma = new PrismaClient({
 });
 
 prisma.$on('query', (e) => {
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV !== 'production') {
     logger.debug(`Prisma Query: ${e.query} -- Duration: ${e.duration}ms`);
   }
 });

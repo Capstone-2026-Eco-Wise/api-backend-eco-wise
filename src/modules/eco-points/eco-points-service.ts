@@ -149,33 +149,20 @@ export default class EcoPointsService {
 
       const ecoPointsUser = await this.ecoPointsRepository.getByUserId(userId);
 
-      // when user first time -> lastActiveDate is NULL
-      if (!ecoPointsUser || !ecoPointsUser.lastActiveDate) {
-        await this.createDefaultPointUser(userId);
-
-        return {
-          totalPoints: ecoPointsUser?.totalPoints || 0,
-          currentStreak: 0,
-          longestStreak: ecoPointsUser?.longestStreak || 0,
-          status: 'never',
-          message: 'Mulai streak pertamamu dengan scan hari ini!',
-        };
-      }
-
       // status streak and diffDays from lastActiveDate
       const { status, message, diffDays } = this.statusStreak(
-        ecoPointsUser.lastActiveDate,
-        ecoPointsUser.currentStreak,
+        ecoPointsUser?.lastActiveDate || this.getJakartaDate(),
+        ecoPointsUser?.currentStreak || 0,
       );
 
       const responseEcoPoints = {
         diffDays,
         status,
         message,
-        currentStreak: ecoPointsUser.currentStreak,
-        longestStreak: ecoPointsUser.longestStreak,
-        totalPoints: ecoPointsUser.totalPoints,
-        lastActiveDate: ecoPointsUser.lastActiveDate,
+        currentStreak: ecoPointsUser?.currentStreak,
+        longestStreak: ecoPointsUser?.longestStreak,
+        totalPoints: ecoPointsUser?.totalPoints,
+        lastActiveDate: ecoPointsUser?.lastActiveDate,
       };
 
       await this.cache.set(cacheKey.ecoPoints(userId), responseEcoPoints);

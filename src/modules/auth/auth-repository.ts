@@ -65,4 +65,11 @@ export default class AuthRepository {
       password,
     });
   };
+
+  deleteUserFromSupabase = async (userId: string) => {
+    return await Promise.allSettled([
+      supabase.auth.admin.deleteUser(userId),
+      prisma.users.delete({ where: { id: userId } }),
+    ]);
+  };
 }

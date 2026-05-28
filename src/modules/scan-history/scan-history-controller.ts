@@ -18,7 +18,7 @@ export default class ScanHistoryController {
       return ResponseServer.error(res, 400, 'Image not found');
     }
 
-    const scanHistory = await this.scanHistoryService.processScanImage({
+    const scanHistory = await this.scanHistoryService.scanUserWithOutDailyTask({
       user: req.user,
       file: req.file,
     });

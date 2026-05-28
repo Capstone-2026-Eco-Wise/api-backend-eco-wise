@@ -43,4 +43,22 @@ export default class UserTaskCompletionsRepository {
       },
     });
   };
+
+  getUserTaskCompletions = async (userId: string) => {
+    return await prisma.userTaskCompletions.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        task: {
+          include: {
+            category: true,
+          }
+        }
+      },
+      orderBy: {
+        completedAt: 'desc',
+      },
+    });
+  };
 }

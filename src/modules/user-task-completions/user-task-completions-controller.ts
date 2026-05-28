@@ -32,4 +32,19 @@ export default class UserTaskCompletionsController {
       userTaskCompletions,
     );
   };
+
+  getAll = async (req: Request, res: Response) => {
+    if (!req.user) {
+      return ResponseServer.error(res, 401, 'Unauthorized');
+    }
+
+    const completions = await this.UserTaskCompletionsService.getUserTaskCompletions(req.user);
+
+    return ResponseServer.success(
+      res,
+      200,
+      'Successfully fetched user task completions',
+      completions,
+    );
+  };
 }
