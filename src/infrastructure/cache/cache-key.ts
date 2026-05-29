@@ -1,3 +1,5 @@
+import type { FilterLeaderboardType } from '../../modules/eco-points/eco-points-type';
+
 export const cacheKey = {
   userSession: (key: string) => `user-session:${key}`,
   blacklistedToken: (token: string) => `auth:blacklist:${token}`,
@@ -9,4 +11,5 @@ export const cacheKey = {
   faqsByCreator: (key: string) => `faqs:creator:${key}`,
   dashboardStats: (key?: string) =>
     key ? `dashboard:stats:${key}` : `dashboard:stats`,
+  leaderboard: ({ type }: FilterLeaderboardType) => `leaderboard:${type}`,
 };

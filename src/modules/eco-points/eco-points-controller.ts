@@ -26,15 +26,17 @@ export default class EcoPointsController {
   leaderboard = async (req: Request, res: Response) => {
     const { type } = req.query as FilterLeaderboardType;
 
-    const leaderboard = await this.ecoPointsService.leaderboardUserPoints({
-      type,
-    });
+    const { leaderboard, fromCache } =
+      await this.ecoPointsService.leaderboardUserPoints({
+        type,
+      });
 
     return ResponseServer.success(
       res,
       200,
       'Successfuly get leaderboard',
       leaderboard,
+      fromCache,
     );
   };
 }

@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DIRECT_URL")
 }
 
 enum ROLE_USER {
@@ -117,7 +116,7 @@ model dailyTasks {
   categoryId  String?  @db.Uuid
   taskName    String   @map("task_name") @db.VarChar(100)
   description String?  @db.Text
-  pointReward Int      @db.Integer
+  pointReward Int      @map("point_reward") @db.Integer
   isActive    Boolean  @default(true) @map("is_active") @db.Boolean
   activeDate  DateTime @map("active_date") @db.Date
   createdAt   DateTime @default(now()) @map("created_at")

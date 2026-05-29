@@ -179,6 +179,20 @@ export default class EcoPointsService {
 
   leaderboardUserPoints = async ({ type }: FilterLeaderboardType) => {
     try {
+      logger.info(
+        `${this.serviceName}: Starting leaderboard user points for type ${type}`,
+      );
+
+      if (type) {
+        const leaderboardCached = await this.cache.get(
+          cacheKey.leaderboard({ type }),
+        );
+
+        if (leaderboardCached) {
+          return { leaderboard: leaderboardCached, fromCache: true };
+        }
+      }
+
       const leaderboard =
         await this.ecoPointsRepository.getPointUserLeaderboard({
           type,
@@ -188,7 +202,15 @@ export default class EcoPointsService {
         throw ErrorFactory.notFoundError('No users found for leaderboard');
       }
 
-      return leaderboard;
+      if (type) {
+        await this.cache.set(cacheKey.leaderboard({ type }), leaderboard);
+      }
+
+      logger.info(
+        `${this.serviceName}: Leaderboard user points retrieved successfully for type ${type}`,
+      );
+
+      return { leaderboard, fromCache: false };
     } catch (error) {
       throw ErrorFactory.handlerServiceError(error, this.serviceName);
     }
@@ -249,7 +271,11 @@ export default class EcoPointsService {
           tx,
         );
 
-      await this.cache.del(cacheKey.ecoPoints(userId));
+      await Promise.allSettled([
+        this.cache.del(cacheKey.ecoPoints(userId)),
+        this.cache.del(cacheKey.leaderboard({ type: 'point' })),
+        this.cache.del(cacheKey.leaderboard({ type: 'streak' })),
+      ]);
 
       logger.info(
         `${this.serviceName}: Eco points updated successfully for user ${userId}`,
