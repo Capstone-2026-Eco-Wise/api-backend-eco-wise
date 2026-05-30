@@ -22,11 +22,14 @@ Backend REST API untuk aplikasi **Eco Wise**. Proyek ini menangani autentikasi p
 - [✨ Fitur Utama](#-fitur-utama)
 - [🛠️ Teknologi](#️-teknologi)
 - [📂 Struktur Proyek](#-struktur-proyek)
+- [📊 Entity Relationship Diagram (ERD)](#-entity-relationship-diagram-erd)
 - [🚀 Quick Start](#-quick-start)
 - [⚙️ Environment Variables](#️-environment-variables)
 - [📜 Scripts](#-scripts)
 - [🐳 Docker](#-docker)
+- [🗄️ Integrasi & Migrasi Supabase](#️-integrasi--migrasi-supabase)
 - [📖 Dokumentasi API](#-dokumentasi-api)
+- [🧪 Pengujian (Testing)](#-pengujian-testing)
 - [🧩 Modul Utama](#-modul-utama)
 
 ---
@@ -59,22 +62,64 @@ Backend REST API untuk aplikasi **Eco Wise**. Proyek ini menangani autentikasi p
 ## 📂 Struktur Proyek
 
 ```text
-src/
-├── app.ts            # Konfigurasi aplikasi
-├── server.ts         # Entry point server
-├── middlewares/      # Interceptors & validasi
-├── modules/          # Business logic & features
-├── infrastructure/   # Database & eksternal service setup
-├── services/         # Layanan eksternal (AI, Storage)
-├── routes/           # Definisi endpoint API
-├── utils/            # Fungsi utilitas bantuan
-└── validations/      # Skema validasi Zod
-prisma/
-├── schema.prisma     # Skema database
-└── migrations/       # Riwayat migrasi
-docs/
-└── api-docs/         # File Markdown dokumentasi API
+api-backend-eco-wise/
+├── src/
+│   ├── app.ts                 # Konfigurasi aplikasi Express
+│   ├── server.ts              # Entry point untuk menjalankan server
+│   ├── errors/                # Penanganan error kustom (AppError, global handler)
+│   ├── infrastructure/        # Setup koneksi database & external client (Prisma, Redis)
+│   ├── middlewares/           # Middleware global (auth, rate-limiter, validator)
+│   ├── modules/               # Modul fitur bisnis (domain logic)
+│   │   ├── auth/              # Otentikasi user
+│   │   ├── daily-tasks/       # Pengelolaan tugas harian
+│   │   ├── eco-points/        # Pelacakan poin & streak
+│   │   ├── faqs/              # Pertanyaan umum (FAQ)
+│   │   ├── scan-history/      # Riwayat klasifikasi AI
+│   │   ├── statistics/        # Laporan & dashboard stats
+│   │   ├── user-task-completions/ # Penyelesaian tugas harian user
+│   │   ├── users/             # Detail profil user
+│   │   └── waste-categories/  # Master data kategori sampah
+│   ├── routes/                # Router Express yang menghubungkan setiap endpoint
+│   ├── services/              # Layanan eksternal (AI Model integration & Storage)
+│   ├── types/                 # Definisi tipe kustom & deklarasi modul TypeScript
+│   ├── utils/                 # Fungsi utilitas bantu (logger, helper)
+│   └── validations/           # Skema validasi request menggunakan Zod
+├── prisma/
+│   ├── schema.prisma          # Skema database relasional
+│   └── migrations/            # Berkas riwayat migrasi SQL PostgreSQL
+├── docs/
+│   ├── api-docs/              # Markdown dokumentasi detail API
+│   └── erd/                   # Visualisasi Entity Relationship Diagram
+├── supabase/
+│   └── user-migration.sql     # Skrip PostgreSQL untuk trigger sync users
+├── test/
+│   ├── Eco Wise.postman_collection.json            # Collection Postman untuk API testing
+│   └── Eco-Wise-Env-Local.postman_environment.json # Environment Postman untuk lokal dev
+├── Dockerfile                 # Konfigurasi pembuatan Docker image
+├── docker-compose.yaml        # Orkestrasi container local API & Redis
+├── vercel.json                # Konfigurasi hosting/deployment ke Vercel
+├── eslint.config.ts           # Konfigurasi linter kode ESLint
+├── tsconfig.json              # Konfigurasi compiler TypeScript
+└── package.json               # Dependensi proyek & skrip npm
 ```
+
+---
+
+## 📊 Entity Relationship Diagram (ERD)
+
+Untuk mempermudah pemahaman struktur data dalam database **Eco Wise**, berikut adalah Entity Relationship Diagram (ERD):
+
+![ERD Eco Wise](docs/erd/ERD-Eco-Wise.webp)
+
+Skema database terdiri dari tabel-tabel utama berikut:
+
+- **`users`**: Menyimpan profil pengguna serta kuota token AI.
+- **`eco_points`**: Menyimpan pencapaian poin keberlanjutan pengguna, riwayat _streak_ harian, dan pencapaian _streak_ terpanjang (_longest streak_).
+- **`scan_history`**: Mencatat riwayat pemindaian sampah pengguna, termasuk URL gambar yang diunggah ke storage, skor kepercayaan dari model klasifikasi AI, serta poin yang didapatkan.
+- **`waste_categories`**: Tabel master untuk jenis-jenis sampah (Organik, Non-Organik, B3, dsb), tips pengolahan, serta alokasi poin dasarnya.
+- **`daily_tasks`**: Menyimpan misi/tugas harian yang dirilis oleh admin dengan target kategori sampah tertentu.
+- **`user_task_completions`**: Mencatat penyelesaian tugas harian oleh pengguna untuk verifikasi pemberian poin.
+- **`faqs`**: Daftar pertanyaan dan jawaban umum yang dikelola oleh admin untuk membantu pengguna.
 
 ---
 
@@ -145,17 +190,18 @@ Berikut adalah variabel lingkungan yang diperlukan di dalam file `.env` atau `.e
 | Variabel              | Deskripsi                                           | Contoh Nilai                                                        |
 | :-------------------- | :-------------------------------------------------- | :------------------------------------------------------------------ |
 | `PORT`                | Port server backend                                 | `3000`                                                              |
-| `HOST`                | Host binding interface                              | `0.0.0.0` atau `localhost`                                          |
+| `HOST`                | Host binding interface                              | `[IP_ADDRESS]`                                                      |
 | `NODE_ENV`            | Mode aplikasi                                       | `development`, `staging`, atau `production`                         |
 | `ORIGIN_ALLOWED`      | URL origin frontend yang diizinkan CORS             | `http://localhost:5173`                                             |
 | `REDIS_URL`           | String koneksi Redis                                | `redis://localhost:6379/1`                                          |
-| `DATABASE_URL`        | URL PostgreSQL Connection Pooler (Pgbouncer)        | `postgresql://postgres...supabase.com:6543/postgres?pgbouncer=true` |
-| `DIRECT_URL`          | URL PostgreSQL Direct Connection (Non-pooler)       | `postgresql://postgres...supabase.com:5432/postgres`                |
-| `SUPABASE_URL`        | URL Proyek Supabase                                 | `https://fbklbswfmzhbpuqqcmbw.supabase.co`                          |
-| `SUPABASE_ANON_KEY`   | Anon Key proyek Supabase                            | `eyJhbGciOiJIUz...`                                                 |
-| `SUPABASE_JWT_SECRET` | JWT Secret dari Supabase Auth                       | `BibHEHh/os0S5SI...`                                                |
-| `AI_API_URL`          | URL Endpoint REST API Model AI                      | `http://localhost:8000`                                             |
-| `ADMIN_SECRET_KEY`    | Kunci rahasia untuk meregistrasi user sebagai Admin | `admin`                                                             |
+| `DATABASE_PASSWORD`   | Password PostgreSQL                                 | `your_db_password`                                                  |
+| `DATABASE_URL`        | URL PostgreSQL Connection Pooler (Pgbouncer)        | `postgresql://postgres:your_db_password@your_db_host:6543/postgres` |
+| `DIRECT_URL`          | URL PostgreSQL Direct Connection (Non-pooler)       | `postgresql://postgres:your_db_password@your_db_host:5432/postgres` |
+| `SUPABASE_URL`        | URL Proyek Supabase                                 | `https://your_db_host.supabase.co`                                  |
+| `SUPABASE_ANON_KEY`   | Anon Key proyek Supabase                            | `your_anon_key`                                                     |
+| `SUPABASE_JWT_SECRET` | JWT Secret dari Supabase Auth                       | `your_jwt_secret`                                                   |
+| `AI_API_URL`          | URL Endpoint REST API Model AI                      | `your_ai_host`                                                      |
+| `ADMIN_SECRET_KEY`    | Kunci rahasia untuk meregistrasi user sebagai Admin | `secret_key`                                                        |
 
 ---
 
@@ -163,22 +209,29 @@ Berikut adalah variabel lingkungan yang diperlukan di dalam file `.env` atau `.e
 
 Perintah npm script yang tersedia di `package.json`:
 
-| Perintah                           | Deskripsi                                                                    |
-| :--------------------------------- | :--------------------------------------------------------------------------- |
-| `npm run dev`                      | Menjalankan server lokal mode development dengan auto-reload (Nodemon + TSX) |
-| `npm run dev:staging`              | Menjalankan server lokal yang dihubungkan ke env `.env.staging`              |
-| `npm run build`                    | Mengompilasi TypeScript ke dalam folder executable JavaScript `dist`         |
-| `npm run start`                    | Menjalankan hasil kompilasi production di folder `dist`                      |
-| `npm run start:staging`            | Menjalankan hasil build dengan konfigurasi `.env.staging`                    |
-| `npm run start:production`         | Menjalankan hasil build dengan konfigurasi `.env.production`                 |
-| `npm run lint`                     | Melakukan pengecekan tipe TypeScript dan validasi ESLint                     |
-| `npm run db:generate`              | Men-generate client Prisma untuk type-safety                                 |
-| `npm run db:push`                  | Mengunggah / menyinkronkan skema prisma langsung ke DB development           |
-| `npm run db:push:staging`          | Menyinkronkan skema prisma ke DB staging menggunakan `.env.staging`          |
-| `npm run db:migrate:dev`           | Membuat dan menjalankan file migrasi database development                    |
-| `npm run db:migrate:reset`         | Menghapus dan membangun ulang seluruh migrasi database                       |
-| `npm run db:migrate:reset:staging` | Mereset migrasi database staging menggunakan `.env.staging`                  |
-| `npm run db:studio`                | Membuka antarmuka grafis data database via Prisma Studio                     |
+| Perintah                           | Deskripsi                                                                                            |
+| :--------------------------------- | :--------------------------------------------------------------------------------------------------- |
+| `npm run dev`                      | Menjalankan server lokal mode development dengan auto-reload (menggunakan berkas `.env.development`) |
+| `npm run dev:staging`              | Menjalankan server lokal mode development yang dihubungkan ke berkas `.env.staging`                  |
+| `npm run dev:prod`                 | Menjalankan server lokal mode development yang dihubungkan ke berkas `.env.production`               |
+| `npm run build`                    | Melakukan generate Prisma Client dan mengompilasi TypeScript ke folder `dist`                        |
+| `npm run start:dev`                | Menjalankan hasil kompilasi development di folder `dist` dengan berkas `.env.development`            |
+| `npm run start:staging`            | Menjalankan hasil kompilasi staging di folder `dist` dengan berkas `.env.staging`                    |
+| `npm run start:prod`               | Menjalankan hasil kompilasi production di folder `dist` dengan berkas `.env.production`              |
+| `npm run db:generate`              | Men-generate client Prisma untuk type-safety                                                         |
+| `npm run db:push:dev`              | Menyinkronkan skema Prisma langsung ke database development menggunakan `.env.development`           |
+| `npm run db:push:staging`          | Menyinkronkan skema Prisma langsung ke database staging menggunakan `.env.staging`                   |
+| `npm run db:push:prod`             | Menyinkronkan skema Prisma langsung ke database production menggunakan `.env.production`             |
+| `npm run db:studio:dev`            | Membuka Prisma Studio untuk database development menggunakan `.env.development`                      |
+| `npm run db:studio:staging`        | Membuka Prisma Studio untuk database staging menggunakan `.env.staging`                              |
+| `npm run db:studio:prod`           | Membuka Prisma Studio untuk database production menggunakan `.env.production`                        |
+| `npm run db:migrate:dev`           | Membuat dan menjalankan file migrasi database development menggunakan `.env.development`             |
+| `npm run db:migrate:staging`       | Membuat dan menjalankan file migrasi database staging menggunakan `.env.staging`                     |
+| `npm run db:migrate:prod`          | Membuat dan menjalankan file migrasi database production menggunakan `.env.production`               |
+| `npm run db:migrate:reset:dev`     | Menghapus dan membangun ulang seluruh migrasi database development menggunakan `.env.development`    |
+| `npm run db:migrate:reset:staging` | Menghapus dan membangun ulang seluruh migrasi database staging menggunakan `.env.staging`            |
+| `npm run db:migrate:reset:prod`    | Menghapus dan membangun ulang seluruh migrasi database production menggunakan `.env.production`      |
+| `npm run lint`                     | Melakukan pengecekan tipe TypeScript dan validasi ESLint                                             |
 
 ---
 
@@ -208,16 +261,27 @@ Untuk mematikan container dan membersihkan jaringannya:
 docker compose down
 ```
 
-### 4. Detail Optimasi & Arsitektur Docker
+---
 
-- **Bypass Isu Pemblokiran ISP (CloudFront Registry Timeout)**:
-  Image Docker ditarik menggunakan mirror **AWS ECR Public Gallery** (`public.ecr.aws/docker/library/node:22-alpine` & `public.ecr.aws/docker/library/redis:7-alpine`) untuk memastikan pulling image tetap lancar dan cepat tanpa kendala pemutusan koneksi (EOF/Timeout) dari CDN Docker Hub.
-- **Prisma Client Caching**:
-  Dockerfile dikonfigurasi dengan _multi-stage build_. Untuk mencegah error `Prisma Client could not locate the Query Engine`, direktori `/app/generated` disalin secara utuh dari tahap _builder_ ke tahap _runner_ akhir.
-- **Keamanan Rahasia (Secrets)**:
-  File `.env` dan `.env.*` diabaikan oleh `.dockerignore` sehingga rahasia tidak bocor ke dalam image kontainer. Nilai environment disuntikkan secara dinamis pada saat _runtime_ melalui berkas `.env.staging` menggunakan parameter `env_file` di `docker-compose.yaml`.
-- **Komunikasi Internal Container ke Local AI Model**:
-  Dalam `docker-compose.yaml`, kami menambahkan konfigurasi `extra_hosts` untuk memetakan `host.docker.internal` ke `host-gateway`. Hal ini memungkinkan kontainer API backend (`eco_wise_api`) untuk mengakses endpoint model AI yang berjalan di komputer lokal Anda (`http://host.docker.internal:8000`) dengan aman tanpa kendala penolakan jaringan (_Connection Refused_).
+## 🗄️ Integrasi & Migrasi Supabase
+
+Proyek ini menggunakan **Supabase** untuk dua kebutuhan utama:
+
+1. **Autentikasi Pengguna**: Mengelola siklus pendaftaran (_signup_), masuk (_signin_), dan keamanan token JWT.
+2. **Object Storage**: Menyimpan berkas avatar profil dan gambar hasil pemindaian sampah pengguna di bucket storage.
+
+### Sinkronisasi Tabel User Otomatis (Database Trigger)
+
+Untuk memastikan konsistensi data antara modul autentikasi bawaan Supabase (`auth.users`) dengan data bisnis aplikasi kita (`public.users`), kami menggunakan trigger PostgreSQL.
+
+Skrip migrasi SQL dapat ditemukan di:
+
+- 📄 `supabase/user-migration.sql`
+
+Skrip ini akan membuat fungsi `public.handle_new_user()` yang berjalan secara otomatis setiap kali ada baris baru yang masuk di `auth.users`, lalu menyalin data profil dasar (email, nama lengkap, username buatan) ke tabel `public.users` dengan nilai bawaan 5 token AI.
+
+**Cara Pemasangan:**
+Jalankan query SQL yang ada pada berkas `supabase/user-migration.sql` di SQL Editor pada Dashboard proyek Supabase Anda.
 
 ---
 
@@ -238,6 +302,24 @@ Dokumentasi detail tiap endpoint tersedia pada direktori `docs/api-docs`:
 - 🎯 [`user-task-completions-api.md`](docs/api-docs/09-UserTaskCompletions.md)
 - 📈 [`statistics-api.md`](docs/api-docs/09-Statistics.md)
 - 🩺 [`health-api.md`](docs/api-docs/10-Health.md)
+
+---
+
+## 🧪 Pengujian (Testing)
+
+Pengujian endpoint REST API dalam proyek ini dilakukan menggunakan **Postman**. Berkas pengujian telah disediakan di dalam folder `test/`:
+
+- 📁 `test/`
+  - 📄 **Collection:** `Eco Wise.postman_collection.json` (Berisi kumpulan _request_ HTTP beserta pengujian otomatis untuk setiap endpoint).
+  - 📄 **Environment:** `Eco-Wise-Env-Local.postman_environment.json` (Berisi variabel lingkungan lokal seperti URL dasar `http://localhost:3000`, token bearer, dsb).
+
+### Langkah-langkah Menjalankan Pengujian:
+
+1. Buka aplikasi **Postman**.
+2. Klik tombol **Import** di sudut kiri atas.
+3. Pilih dan impor berkas `Eco Wise.postman_collection.json` dan `Eco-Wise-Env-Local.postman_environment.json` dari folder `test/`.
+4. Pilih environment **Eco-Wise-Env-Local** yang telah diimpor pada pemilih _environment_ di kanan atas Postman.
+5. Anda dapat menguji endpoint satu per satu atau menggunakan **Collection Runner** untuk menjalankan semua tes secara otomatis dan memverifikasi fungsionalitas backend.
 
 ---
 
